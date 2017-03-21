@@ -1,0 +1,100 @@
+package com.jayqqaa12.j2cache.redis;
+
+import com.jayqqaa12.j2cache.util.ConfigUtil;
+import org.apache.commons.lang3.StringUtils;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+
+public class RedisConnConfig {
+
+    private String host="127.0.0.1";
+    private int port =6379;
+    private int timeout=2000;
+    private String password;
+    private JedisPoolConfig poolConfig;
+    private int db=0;
+    private static JedisPool pool;
+
+    public static JedisPool getPool() {
+        return pool;
+    }
+
+    public void init() {
+        /**
+         * 如果为null就读取配置文件
+         */
+        if (poolConfig == null) {
+            poolConfig = new JedisPoolConfig();
+            JedisPoolConfig config = new JedisPoolConfig();
+
+            host = ConfigUtil.getStr("redis.host", "127.0.0.1");
+            password = ConfigUtil.getStr("redis.password", null);
+            port = ConfigUtil.getInt("redis.port", 6379);
+            timeout = ConfigUtil.getInt("redis.timeout", 2000);
+            db = ConfigUtil.getInt("redis.database", 0);
+
+            config.setBlockWhenExhausted(ConfigUtil.getBoolean("redis.blockWhenExhausted", true));
+            //最大空闲连接数
+            config.setMaxIdle(ConfigUtil.getInt("redis.maxIdle", 10));
+            //最小空闲连接数
+            config.setMinIdle(ConfigUtil.getInt("redis.minIdle", 5));
+            //最大连接数
+            config.setMaxTotal(ConfigUtil.getInt("redis.maxTotal", 10000));
+            //获取连接时的最大等待毫秒数
+            config.setMaxWaitMillis(ConfigUtil.getInt("redis.maxWaitMillis", 100));
+            //逐出连接的最小空闲时间
+            config.setMinEvictableIdleTimeMillis(ConfigUtil.getInt("redis.minEvictableIdleTimeMillis", 1000));
+            //对象空闲多久后逐出, 当空闲时间>该值 且 空闲连接>最大空闲数 时直接逐出,不再根据MinEvictableIdleTimeMillis判断  (默认逐出策略)
+            config.setSoftMinEvictableIdleTimeMillis(ConfigUtil.getInt("redis.softMinEvictableIdleTimeMillis", 10));
+            //每次逐出检查时 逐出的最大数目 如果为负数就是 : 1/abs(n), 默认10
+            config.setNumTestsPerEvictionRun(ConfigUtil.getInt("redis.numTestsPerEvictionRun", 10));
+            //逐出扫描的时间间隔(毫秒)如果为负数,则不运行逐出线程, 默认-1
+            config.setTimeBetweenEvictionRunsMillis(ConfigUtil.getInt("redis.timeBetweenEvictionRunsMillis", 100));
+            //在空闲时检查有效性, 默认false
+            config.setTestWhileIdle(ConfigUtil.getBoolean("redis.testWhileIdle", false));
+            //在获取连接的时候检查有效性, 默认false
+            config.setTestOnBorrow(ConfigUtil.getBoolean("redis.testOnBorrow", true));
+            config.setTestOnReturn(ConfigUtil.getBoolean("redis.testOnReturn", false));
+            config.setLifo(ConfigUtil.getBoolean("redis.lifo", false));
+        }
+
+        if (StringUtils.isEmpty(password)) {
+            pool = new JedisPool(poolConfig, host, port, timeout);
+        } else {
+            pool = new JedisPool(poolConfig, host, port, timeout, password, db);
+        }
+    }
+
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setPoolConfig(JedisPoolConfig poolConfig) {
+        this.poolConfig = poolConfig;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+    public void setDb(int db) {
+        this.db = db;
+    }
+
+
+}
