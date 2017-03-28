@@ -33,27 +33,27 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static Object get(String key, CacheDataSource data) throws CacheException {
+    public static <T>T get(String key, CacheDataSource data) throws CacheException {
         return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME);
     }
 
 
-    public static Object get(String region, String key, CacheDataSource data) throws CacheException {
+    public static <T>T get(String region, String key, CacheDataSource data) throws CacheException {
         return get(region, key, data, CacheConstans.DEFAULT_TIME);
     }
 
 
-    public static Object get1(String region, String key, CacheDataSource data, int sec) throws CacheException {
+    public static <T>T get1(String region, String key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = get1(region, key);
         if (obj == null) {
             obj = data.load();
             set1n(region, key, obj, sec);
         }
-        return obj;
+        return (T) obj;
     }
 
-    public static Object get(String key, CacheDataSource data, int sec) throws CacheException {
+    public static <T>T get(String key, CacheDataSource data, int sec) throws CacheException {
         return get(CacheConstans.NUllRegion, key, data, sec);
     }
 
@@ -68,14 +68,14 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    private static Object get(String region, String key, CacheDataSource data, int sec) throws CacheException {
+    private static <T>T get(String region, String key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = cache().get(region, key);
         if (obj == null) {
             obj = data.load();
             cache().set(key, obj, sec, false);
         }
-        return obj;
+        return (T) obj;
     }
 
     public static void set(String key, Object value, int seconds) {
@@ -140,30 +140,30 @@ public class J2Cache {
      * @param key
      * @return
      */
-    public static Object get(String region, String key) {
-        return cache().get(region, key);
+    public static <T>T get(String region, String key) {
+        return (T) cache().get(region, key);
     }
 
 
-    public static Object get(String key) {
-        return cache().get(key);
+    public static <T>T get(String key) {
+        return (T) cache().get(key);
     }
 
-    public static Object get1(String region, String key) {
-        return cache().get(LEVEL1, region, key);
+    public static <T>T get1(String region, String key) {
+        return (T) cache().get(LEVEL1, region, key);
     }
 
 
-    public static Object get1(String key) {
-        return cache().get(LEVEL1, key);
+    public static <T>T get1(String key) {
+        return (T) cache().get(LEVEL1, key);
     }
 
-    public static Object get2(String region, String key) {
-        return cache().get(LEVEL2, region, key);
+    public static <T>T get2(String region, String key) {
+        return (T) cache().get(LEVEL2, region, key);
     }
 
-    public static Object get2(String key) {
-        return cache().get(LEVEL2, key);
+    public static <T>T get2(String key) {
+        return (T) cache().get(LEVEL2, key);
     }
 
 
