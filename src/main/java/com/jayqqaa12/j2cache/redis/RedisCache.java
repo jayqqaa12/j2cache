@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,15 +32,15 @@ public class RedisCache implements Cache {
      * @param name
      * @return
      */
-    private String appendNameSpace(String name) {
+    private String appendNameSpace(Serializable name) {
         String nameSpace = CacheConstans.NAMESPACE;
         if (nameSpace != null && !nameSpace.isEmpty()) {
-            name = nameSpace + ":" + name;
+            name = nameSpace + ":" + name.toString();
         }
-        return name;
+        return name.toString();
     }
 
-    protected byte[] getKeyNameBytes(String key) throws IOException {
+    protected byte[] getKeyNameBytes(Serializable key) throws IOException {
 
         return SerializationUtils.serialize(key);
     }
@@ -82,7 +83,7 @@ public class RedisCache implements Cache {
      * @return the cached object or null
      */
     @Override
-    public Object get(String region, String key) throws CacheException {
+    public Object get(String region, Serializable key) throws CacheException {
         if (null == key)
             return null;
         if (region == null) {//直接获取值
@@ -104,7 +105,7 @@ public class RedisCache implements Cache {
     }
 
 
-    public Object get(String key) throws CacheException {
+    public Object get(Serializable key) throws CacheException {
         String _key = appendNameSpace(key);
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
@@ -132,7 +133,7 @@ public class RedisCache implements Cache {
      * @throws CacheException
      */
     @Override
-    public void set(String region, String key, Object value, int seconds) throws CacheException {
+    public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
         if (key == null)
             return;
         if (value == null)
@@ -157,7 +158,7 @@ public class RedisCache implements Cache {
      * @param value   值
      * @return
      */
-    public void set(String key, int seconds, Object value) {
+    public void set(Serializable key, int seconds, Object value) {
         if (key == null)
             return;
         if (value == null)
@@ -249,7 +250,7 @@ public class RedisCache implements Cache {
      * @param key
      * @param seconds
      */
-    public Object exprie(String region, String key, int seconds) {
+    public Object exprie(String region, Serializable key, int seconds) {
         if (key == null)
             return null;
         if (region == null || region.isEmpty()) {

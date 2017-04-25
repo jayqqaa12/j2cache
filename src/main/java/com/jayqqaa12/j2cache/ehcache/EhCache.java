@@ -21,6 +21,7 @@ import com.jayqqaa12.j2cache.core.CacheConstans;
 import com.jayqqaa12.j2cache.util.CacheException;
 import net.sf.ehcache.Element;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class EhCache implements Cache {
     }
 
     @Override
-    public Object get(String region, String key) throws CacheException {
+    public Object get(String region, Serializable key) throws CacheException {
         try {
             if (key == null)
                 return null;
@@ -63,7 +64,7 @@ public class EhCache implements Cache {
 
 
     @Override
-    public void set(String region, String key, Object value, int seconds) throws CacheException {
+    public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
         try {
             if (region == null)
                 region = CacheConstans.EHCACHE_DEFAULT_REGION;
@@ -131,7 +132,7 @@ public class EhCache implements Cache {
      * @param seconds
      */
     @Override
-    public Object exprie(String region, String key, int seconds) {
+    public Object exprie(String region, Serializable key, int seconds) {
         return get(region, key);
     }
 

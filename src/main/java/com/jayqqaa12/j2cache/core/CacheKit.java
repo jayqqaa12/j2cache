@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.SafeEncoder;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class CacheKit {
      * @param key cache key
      * @return the cached object or null
      */
-    public Object get(String key) {
+    public Object get(Serializable key) {
         return get(null, key);
     }
 
@@ -53,7 +54,7 @@ public class CacheKit {
      * @return the
      * cached object or null
      */
-    public Object get(String region, String key) {
+    public Object get(String region, Serializable key) {
         Object obj = null;
         if (key != null) {
             obj = CacheManager.get(LEVEL1, region, key);
@@ -87,7 +88,7 @@ public class CacheKit {
      * @param key    cache key
      * @return the cached object or null
      */
-    public Object get(int level, String region, String key) {
+    public Object get(int level, String region, Serializable key) {
         Object obj = null;
         if (key != null) {
             obj = CacheManager.get(level, region, key);
@@ -102,7 +103,7 @@ public class CacheKit {
      * @param key   cache key
      * @return the cached object or null
      */
-    public Object get(int level, String key) {
+    public Object get(int level, Serializable key) {
         return get(level, CacheConstans.NUllRegion, key);
     }
 
@@ -114,7 +115,7 @@ public class CacheKit {
      * @param value   cache value
      * @param seconds cache Expiration time
      */
-    public void set(String region, String key, Object value, int seconds,boolean notify) {
+    public void set(String region, Serializable key, Object value, int seconds,boolean notify) {
         if (key != null) {
             if (value == null)
                 remove(region, key);
@@ -133,7 +134,7 @@ public class CacheKit {
      * @param key    : Cache key
      * @param value  : Cache value
      */
-    public void set(String region, String key, Object value,boolean notify) {
+    public void set(String region, Serializable key, Object value,boolean notify) {
         set(region, key, value, CacheConstans.DEFAULT_TIME,notify);
     }
 
@@ -145,7 +146,7 @@ public class CacheKit {
      * @param value cache value
      *              seconds cache Expiration use default time
      */
-    public void set(String key, Object value,boolean notify) {
+    public void set(Serializable key, Object value,boolean notify) {
         set(CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME,notify);
     }
 
@@ -157,7 +158,7 @@ public class CacheKit {
      * @param value cache value
      *              seconds cache Expiration use default time
      */
-    public void set(String key, Object value, int seconds,boolean notify) {
+    public void set(Serializable key, Object value, int seconds,boolean notify) {
         set(CacheConstans.NUllRegion, key, value, seconds,notify);
     }
 
@@ -170,7 +171,7 @@ public class CacheKit {
      * @param value   cache value
      * @param seconds cache Expiration time
      */
-    public void set(int level, String region, String key, Object value, int seconds,boolean notify) {
+    public void set(int level, String region, Serializable key, Object value, int seconds, boolean notify) {
         if (key != null) {
             if (value == null)
                 remove(region, key);
@@ -190,7 +191,7 @@ public class CacheKit {
      * @param value  cache value
      *               seconds cache Expiration use default time
      */
-    public void set(int level, String region, String key, Object value,boolean notify) {
+    public void set(int level, String region, Serializable key, Object value,boolean notify) {
         set(level, region, key, value, CacheConstans.DEFAULT_TIME,notify);
     }
 
@@ -202,7 +203,7 @@ public class CacheKit {
      * @param value cache value
      *              seconds cache Expiration use default time
      */
-    public void set(int level, String key, Object value,boolean notify) {
+    public void set(int level, Serializable key, Object value,boolean notify) {
         set(level, CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME,notify);
     }
 
@@ -210,7 +211,7 @@ public class CacheKit {
      * @param key Cache key
      *            Remove an item from the cache
      */
-    public void remove(String key) {
+    public void remove(Serializable key) {
         sendEvictCmd(CacheConstans.NUllRegion, key);
         CacheManager.remove(LEVEL1, CacheConstans.NUllRegion, key);
         CacheManager.remove(LEVEL2, CacheConstans.NUllRegion, key);
@@ -222,16 +223,16 @@ public class CacheKit {
      * @param region : Cache region name
      * @param keys   : Cache key
      */
-    public void remove(String region, List<String > keys) {
-        for (String key : keys) {
+    public void remove(String region, List<Serializable > keys) {
+        for (Serializable key : keys) {
             sendEvictCmd(region, key);
         }
         CacheManager.batchRemove(LEVEL1,region, keys);
         CacheManager.batchRemove(LEVEL2,region, keys);
     }
 
-    public void remove(List<String> keys) {
-        for (String key : keys) {
+    public void remove(List<Serializable> keys) {
+        for (Serializable key : keys) {
             sendEvictCmd(CacheConstans.NUllRegion, key);
         }
         CacheManager.batchRemove(LEVEL1, CacheConstans.NUllRegion, keys);
@@ -244,7 +245,7 @@ public class CacheKit {
      * @param region : Cache Region name
      * @param key    : Cache key
      */
-    public void remove(String region, String key) {
+    public void remove(String region, Serializable key) {
         CacheManager.remove(LEVEL1, region, key); // 删除一级缓存
         CacheManager.remove(LEVEL2, region, key); // 删除二级缓存
         sendEvictCmd(region, key); // 发送广播
@@ -276,7 +277,7 @@ public class CacheKit {
      * @param key
      * @param seconds
      */
-    public Object exprie(String key, int seconds) {
+    public Object exprie(Serializable key, int seconds) {
         return exprie(CacheConstans.NUllRegion, key, seconds);
     }
 
@@ -286,7 +287,7 @@ public class CacheKit {
      * @param key
      * @param seconds
      */
-    public Object exprie(String region, String key, int seconds) {
+    public Object exprie(String region, Serializable key, int seconds) {
         CacheManager.exprie(LEVEL1, region, key, seconds);
         CacheManager.exprie(LEVEL2, region, key, seconds);
         return get(region, key);
@@ -299,7 +300,7 @@ public class CacheKit {
      * @param region : Cache region name
      * @param key    : cache key
      */
-    public void sendEvictCmd(String region, String key) {
+    public void sendEvictCmd(String region, Serializable key) {
 
         Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
         try (Jedis jedis = RedisConnConfig.getPool().getResource()) {

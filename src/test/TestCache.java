@@ -12,17 +12,17 @@ public class TestCache {
         user1.setName("12");
         user1.setAge("34");
 
-        J2Cache.set("session", "a12",user1);//region
+        J2Cache.set("session", 123,user1);//region
         J2Cache.set("session", "a13",user1);//region
 
         J2Cache.set("a13",user1);//region
 
-        Object object =J2Cache.get("session", "a12");
+        Object object =J2Cache.get("session",123);
         System.out.println("+++++a12 value :"+object);
 
 
-        object =J2Cache.get("session", "a12");
-        System.out.println("+++++a12 value :" + object);
+        object =J2Cache.get("session", "a13");
+        System.out.println("+++++a13 value :" + object);
 
 
         /*object =cacheKit.get("session", "a12");

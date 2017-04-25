@@ -7,6 +7,7 @@ import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class CacheManager {
      * @param key    Cache key
      * @return Cache object
      */
-    public final static Object get(int level, String region, String key) {
+    public final static Object get(int level, String region, Serializable key) {
         if (key != null) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -88,7 +89,7 @@ public class CacheManager {
      * @param key         Cache key
      * @return Cache object
      */
-    public final static <T> T get(int level, Class<T> resultClass, String name, String key) {
+    public final static <T> T get(int level, Class<T> resultClass, String name, Serializable key) {
         if (key != null) {
             Cache cache = getCache(level, name);
             if (cache != null)
@@ -106,7 +107,7 @@ public class CacheManager {
      * @param value   Cache value
      * @param seconds Cache time
      */
-    public final static void set(int level, String region, String key, Object value, int seconds) {
+    public final static void set(int level, String region, Serializable key, Object value, int seconds) {
         if (key != null && value != null) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -121,7 +122,7 @@ public class CacheManager {
      * @param region Cache region name
      * @param key    Cache key
      */
-    public final static void remove(int level, String region, String key) {
+    public final static void remove(int level, String region, Serializable key) {
         if (key != null) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -145,7 +146,7 @@ public class CacheManager {
     }
 
 
-    public final static Object exprie(int level, String region, String key, int seconds) {
+    public final static Object exprie(int level, String region, Serializable key, int seconds) {
         if (key != null) {
             Cache cache = getCache(level, region);
             if (cache != null) {

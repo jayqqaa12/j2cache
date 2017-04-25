@@ -3,6 +3,7 @@ package com.jayqqaa12.j2cache.nullcache;
 import com.jayqqaa12.j2cache.core.Cache;
 import com.jayqqaa12.j2cache.util.CacheException;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -13,12 +14,13 @@ public class NullCache implements Cache {
         return null;
     }
 
-    public Object get(String region, String key) throws CacheException {
+    @Override
+    public Object get(String region, Serializable key) throws CacheException {
         return null;
     }
 
-
-    public void set(String region, String key, Object value, int seconds) throws CacheException {
+    @Override
+    public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
 
     }
 
@@ -33,7 +35,7 @@ public class NullCache implements Cache {
     }
 
 
-    public Object exprie(String region, String key, int seconds) {
+    public Object exprie(String region, Serializable key, int seconds) {
         return null;
     }
 }
