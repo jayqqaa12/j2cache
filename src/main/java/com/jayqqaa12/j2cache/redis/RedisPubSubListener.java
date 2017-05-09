@@ -9,7 +9,6 @@ import redis.clients.jedis.BinaryJedisPubSub;
 import java.util.List;
 
 /**
- * FIXME 还有问题
  *
  * 监听删除操作，删除1级缓存
  *

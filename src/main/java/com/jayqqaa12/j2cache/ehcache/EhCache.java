@@ -34,10 +34,9 @@ public class EhCache implements Cache {
     }
 
 
-
     @Override
     public List<Object> keys(String region) {
-        if (region == null)return new ArrayList<>();
+        if (region == null) return new ArrayList<>();
         net.sf.ehcache.Cache ehcache = getCache(region);
         return ehcache.getKeys();
     }
@@ -73,7 +72,7 @@ public class EhCache implements Cache {
             else {
                 net.sf.ehcache.Cache ehcache = getCache(region);
                 Element element = new Element(key, value);
-                element.setTimeToLive(seconds);
+                if (seconds > 0) element.setTimeToLive(seconds);
                 ehcache.put(element);
             }
 
@@ -85,7 +84,6 @@ public class EhCache implements Cache {
             throw new CacheException(e);
         }
     }
-
 
 
     @Override
@@ -135,7 +133,6 @@ public class EhCache implements Cache {
     public Object exprie(String region, Serializable key, int seconds) {
         return get(region, key);
     }
-
 
 
     private net.sf.ehcache.Cache getCache(String region) {

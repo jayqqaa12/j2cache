@@ -8,21 +8,29 @@ public class TestCache {
 
 
 
-        User user1 = new User();
-        user1.setName("12");
-        user1.setAge("34");
+//        User user1 = new User();
+//        user1.setName("12");
+//        user1.setAge("34");
+//
+//        J2Cache.set("session", 123,user1);//region
+//        J2Cache.set("session", "a13",user1);//region
+//
+//        J2Cache.set("a13",user1);//region
+//
+//        Object object =J2Cache.get("session",123);
+//        System.out.println("+++++a12 value :"+object);
+//
+//
+//        object =J2Cache.get("session", "a13");
+//        System.out.println("+++++a13 value :" + object);
 
-        J2Cache.set("session", 123,user1);//region
-        J2Cache.set("session", "a13",user1);//region
 
-        J2Cache.set("a13",user1);//region
+        J2Cache.set1("test","12");
 
-        Object object =J2Cache.get("session",123);
-        System.out.println("+++++a12 value :"+object);
+        String  str =J2Cache.get1("test");
 
+        System.out.println(str);
 
-        object =J2Cache.get("session", "a13");
-        System.out.println("+++++a13 value :" + object);
 
 
         /*object =cacheKit.get("session", "a12");

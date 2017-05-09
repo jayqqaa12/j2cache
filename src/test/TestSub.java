@@ -33,7 +33,7 @@ public class TestSub {
         config.setTestOnReturn(true);
         config.setTestOnBorrow(true);
         //need password
-        pool = new JedisPool(config, "106.14.37.173", 6379, 2000, "Hyxx201611Test",1);
+        pool = new JedisPool(config, "106.14.19.47", 6379, 2000, "Cypress203",1);
     }
 
     /**

@@ -166,7 +166,8 @@ public class RedisCache implements Cache {
         else {
             String _key = appendNameSpace(key);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                if (seconds > 0) cache.setex(_key.getBytes(), seconds, SerializationUtils.serialize(value));
+                //为缓解缓存击穿 l2 缓存时间增加一点时间
+                if (seconds > 0) cache.setex(_key.getBytes(), (int)(seconds*1.5), SerializationUtils.serialize(value));
                 else cache.set(_key.getBytes(), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);

@@ -18,7 +18,7 @@ public class TestPub {
         long loop = 0;
         while (loop++ < 200) {
 
-            Command cmd = new Command(Command.OPT_DELETE_KEY, "12", "12");
+            Command cmd = new Command(Command.OPT_DELETE_KEY, "12", 12342);
             jedis.publish(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL), cmd.toBuffers());
             Thread.sleep(500);
         }
@@ -36,7 +36,7 @@ public class TestPub {
         config.setTestOnReturn(true);
         config.setTestOnBorrow(true);
         //need password
-        pool = new JedisPool(config, "106.14.37.173", 6379, 2000, "Hyxx201611Test",1);
+        pool = new JedisPool(config, "106.14.19.47", 6379, 2000, "Cypress203",1);
     }
 
     /**
