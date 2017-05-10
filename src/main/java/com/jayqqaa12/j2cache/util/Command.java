@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -34,7 +35,7 @@ public class Command {
     private int src;
     private byte operator;
     private String region;
-    private Object key;
+    private Serializable key;
 
     private static int genRandomSrc() {
         long ct = System.currentTimeMillis();
@@ -43,7 +44,7 @@ public class Command {
     }
 
 
-    public Command(byte operator, String region, Object key) {
+    public Command(byte operator, String region, Serializable key) {
         this.operator = operator;
         if (region == null)
             region = CacheConstans.EHCACHE_DEFAULT_REGION;
@@ -92,7 +93,7 @@ public class Command {
                 if (k_len > 0) {
                     byte[] keyBuffers = new byte[k_len];
                     System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-                    Object key = SerializationUtils.deserialize(keyBuffers);
+                    Serializable key = SerializationUtils.deserialize(keyBuffers);
                     cmd = new Command(opt, region, key);
                     cmd.src = bytes2int(buffers);
                 }
@@ -139,11 +140,11 @@ public class Command {
         this.region = region;
     }
 
-    public Object getKey() {
+    public Serializable getKey() {
         return key;
     }
 
-    public void setKey(Object key) {
+    public void setKey(Serializable key) {
         this.key = key;
     }
 

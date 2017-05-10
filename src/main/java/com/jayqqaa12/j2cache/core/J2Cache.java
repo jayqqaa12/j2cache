@@ -18,6 +18,8 @@ import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL2;
  * set2 只设置二级缓存
  * <p>
  * setn 设置数据但是 不发送通知
+ *
+ *
  */
 public class J2Cache {
 

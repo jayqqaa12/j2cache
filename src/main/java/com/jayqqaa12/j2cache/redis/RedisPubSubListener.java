@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -60,11 +61,11 @@ public class RedisPubSubListener extends BinaryJedisPubSub {
      * @param region : Cache region name
      * @param key    : cache key
      */
-    protected void onDeleteCacheKey(String region, Object key) {
+    protected void onDeleteCacheKey(String region, Serializable key) {
         if (key instanceof List)
             CacheManager.batchRemove(1, region, (List) key);
         else
-            CacheManager.remove(1, region, key.toString());
+            CacheManager.remove(1, region, key);
         log.debug("Received cache evict message, region=" + region + ",key=" + key);
     }
 

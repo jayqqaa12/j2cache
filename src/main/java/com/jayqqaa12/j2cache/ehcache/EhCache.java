@@ -97,7 +97,7 @@ public class EhCache implements Cache {
         } else {
             try {
                 net.sf.ehcache.Cache ehcache = getCache(region);
-                ehcache.remove(key.toString());
+                ehcache.remove(key);
             } catch (IllegalStateException e) {
                 throw new CacheException(e);
             } catch (net.sf.ehcache.CacheException e) {

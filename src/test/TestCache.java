@@ -7,10 +7,9 @@ public class TestCache {
         System.setProperty("java.net.preferIPv4Stack", "true"); //Disable IPv6 in JVM
 
 
-
-//        User user1 = new User();
-//        user1.setName("12");
-//        user1.setAge("34");
+        User user1 = new User();
+        user1.setName("12");
+        user1.setAge("34");
 //
 //        J2Cache.set("session", 123,user1);//region
 //        J2Cache.set("session", "a13",user1);//region
@@ -25,11 +24,18 @@ public class TestCache {
 //        System.out.println("+++++a13 value :" + object);
 
 
-        J2Cache.set1("test","12");
+        J2Cache.set("agasdf", user1, user1);
 
-        String  str =J2Cache.get1("test");
 
-        System.out.println(str);
+        User cache = J2Cache.get("agasdf", user1);
+        System.out.println(cache);
+        User user2 = new User();
+        user1.setName("user2");
+        J2Cache.set("agasdf", user1, user2);
+
+        cache = J2Cache.get("agasdf", user1);
+        System.out.println(cache);
+
 
 
 

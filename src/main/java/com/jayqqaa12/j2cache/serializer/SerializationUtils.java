@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 
 public class SerializationUtils {
@@ -42,8 +43,8 @@ public class SerializationUtils {
         return serializer.serialize(obj);
     }
 
-    public static Object deserialize(byte[] bytes) throws IOException {
-        return serializer.deserialize(bytes);
+    public static Serializable deserialize(byte[] bytes) throws IOException {
+        return (Serializable) serializer.deserialize(bytes);
     }
 
 }
