@@ -4,6 +4,7 @@ import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL1;
 import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL2;
@@ -179,6 +180,18 @@ public class J2Cache {
         cache().set(region, key, value, true);
     }
 
+
+    public static void batchSet( Map< Serializable, Object> data) {
+        cache().batchSet(data);
+    }
+
+    public static void batchSet(String region, Map< Serializable, Object> data) {
+        cache().batchSet(region,data);
+    }
+
+    public static void batchSet(String region, Map<Serializable, Object> data,int seconds ) {
+        cache().batchSet(region,data,seconds);
+    }
 
     public static void setn(Serializable key, Object value) {
         cache().set(key, value, false);

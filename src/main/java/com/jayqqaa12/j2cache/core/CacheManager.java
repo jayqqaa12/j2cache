@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * L1,L2缓存管理器，调用缓存实现类
@@ -142,6 +143,15 @@ public class CacheManager {
             Cache cache = getCache(level, region);
             if (cache != null)
                 cache.remove(region, keys);
+        }
+    }
+
+
+    public final static void batchSet(int level, String region, Map<Serializable,Object> data,int seconds) {
+        if (data != null && !data.isEmpty()) {
+            Cache cache = getCache(level, region);
+            if (cache != null)
+                cache.pset(region,data,seconds);
         }
     }
 

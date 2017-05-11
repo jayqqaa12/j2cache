@@ -24,6 +24,7 @@ import net.sf.ehcache.Element;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EhCache implements Cache {
 
@@ -84,6 +85,23 @@ public class EhCache implements Cache {
             throw new CacheException(e);
         }
     }
+
+    /**
+     * ehcache 批量写入跟平常的一样
+     * @param region
+     * @param data
+     * @param seconds
+     * @throws CacheException
+     */
+    @Override
+    public void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+
+        data.forEach((k,v)->{
+            set(region,k,v,seconds);
+        });
+    }
+
+
 
 
     @Override

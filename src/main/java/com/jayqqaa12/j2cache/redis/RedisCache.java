@@ -7,11 +7,13 @@ import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RedisCache implements Cache {
@@ -141,14 +143,39 @@ public class RedisCache implements Cache {
         else if (region == null) {
             set(key, seconds, value);
         } else {
-                String _region = appendNameSpace(region);
-                try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                    cache.hset(_region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
-                } catch (Exception e) {
-                    throw new CacheException(e);
-                }
+            String _region = appendNameSpace(region);
+            try (Jedis cache = redisConnConfig.getPool().getResource()) {
+                cache.hset(_region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
         }
     }
+
+
+    public void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+        if (data == null || data.isEmpty())
+            return;
+        else if (region == null) {
+            pset(data, seconds);
+        } else {
+            String _region = appendNameSpace(region);
+            try (Jedis cache = redisConnConfig.getPool().getResource()) {
+                Pipeline p = cache.pipelined();
+                for (Serializable k : data.keySet()) {
+                    if (k == null) continue;
+                    Object v = data.get(k);
+                    if (v == null) remove(region, k);
+                    p.hset(_region.getBytes(), getKeyNameBytes(k), SerializationUtils.serialize(v));
+                }
+
+                p.sync();
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        }
+    }
+
 
     /**
      * 设置超时时间
@@ -167,13 +194,38 @@ public class RedisCache implements Cache {
             String _key = appendNameSpace(key);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 //为缓解缓存击穿 l2 缓存时间增加一点时间
-                if (seconds > 0) cache.setex(_key.getBytes(), (int)(seconds*1.5), SerializationUtils.serialize(value));
+                if (seconds > 0)
+                    cache.setex(_key.getBytes(), (int) (seconds * 1.5), SerializationUtils.serialize(value));
                 else cache.set(_key.getBytes(), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
         }
     }
+
+    public void pset(Map<Serializable, Object> data, int seconds) {
+
+        if (data == null || data.isEmpty()) return;
+        else {
+            try (Jedis cache = redisConnConfig.getPool().getResource()) {
+                Pipeline p = cache.pipelined();
+                for (Serializable k : data.keySet()) {
+                    if (k == null) continue;
+                    String _key = appendNameSpace(k);
+                    Object v = data.get(k);
+                    if (v == null) remove(k);
+                    //为缓解缓存击穿 l2 缓存时间增加一点时间
+                    if (seconds > 0)
+                        p.setex(_key.getBytes(), (int) (seconds * 1.5), SerializationUtils.serialize(v));
+                    else p.set(_key.getBytes(), SerializationUtils.serialize(v));
+                }
+                p.sync();
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        }
+    }
+
 
     /**
      * @param key Cache key

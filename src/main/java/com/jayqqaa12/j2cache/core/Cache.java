@@ -4,6 +4,7 @@ import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * copy
@@ -13,16 +14,13 @@ import java.util.List;
 public interface Cache {
 
 
-
-
     /**
      * get all keys the cache region
+     *
      * @param region
      * @return
      */
-    List<Object >  keys(String  region);
-
-
+    List<Object> keys(String region);
 
     /**
      * Get an item from the cache
@@ -43,6 +41,8 @@ public interface Cache {
      * @param seconds cache Expiration time
      */
     void set(String region, Serializable key, Object value, int seconds) throws CacheException;
+
+    void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException;
 
     /**
      * @param key Cache key

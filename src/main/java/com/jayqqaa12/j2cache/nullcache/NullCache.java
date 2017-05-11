@@ -5,6 +5,7 @@ import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 
 public class NullCache implements Cache {
@@ -21,6 +22,11 @@ public class NullCache implements Cache {
 
     @Override
     public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
+
+    }
+
+    @Override
+    public void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
 
     }
 

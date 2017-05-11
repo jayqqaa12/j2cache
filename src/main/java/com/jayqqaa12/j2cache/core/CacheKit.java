@@ -11,6 +11,7 @@ import redis.clients.util.SafeEncoder;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class CacheKit {
@@ -23,6 +24,7 @@ public class CacheKit {
     public static CacheKit cache() {
         return cache;
     }
+
     private CacheKit() {
         CacheManager.init();
     }
@@ -69,13 +71,13 @@ public class CacheKit {
     }
 
 
-    public  List<Object> keys(int level ,String region){
+    public List<Object> keys(int level, String region) {
 
-        List<Object> keys =new ArrayList<>();
-       if(region!=null){
-         keys=   CacheManager.keys(level,region);
-       }
-       return  keys;
+        List<Object> keys = new ArrayList<>();
+        if (region != null) {
+            keys = CacheManager.keys(level, region);
+        }
+        return keys;
 
     }
 
@@ -115,15 +117,31 @@ public class CacheKit {
      * @param value   cache value
      * @param seconds cache Expiration time
      */
-    public void set(String region, Serializable key, Object value, int seconds,boolean notify) {
+    public void set(String region, Serializable key, Object value, int seconds, boolean notify) {
         if (key != null) {
             if (value == null)
                 remove(region, key);
             else {
-                if(notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
+                if (notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
                 CacheManager.set(LEVEL1, region, key, value, seconds);
                 CacheManager.set(LEVEL2, region, key, value, seconds);
             }
+        }
+    }
+
+
+    public void batchSet( Map<Serializable, Object> data) {
+        batchSet(CacheConstans.NUllRegion,data, CacheConstans.DEFAULT_TIME);
+    }
+
+    public void batchSet(String region, Map<Serializable, Object> data) {
+        batchSet(region,data, CacheConstans.DEFAULT_TIME);
+    }
+
+    public void batchSet(String region, Map<Serializable, Object> data, int seconds) {
+        if (data != null && !data.isEmpty()) {
+            CacheManager.batchSet(LEVEL1, region,data, seconds);
+            CacheManager.batchSet(LEVEL2, region,data, seconds);
         }
     }
 
@@ -134,8 +152,26 @@ public class CacheKit {
      * @param key    : Cache key
      * @param value  : Cache value
      */
-    public void set(String region, Serializable key, Object value,boolean notify) {
-        set(region, key, value, CacheConstans.DEFAULT_TIME,notify);
+    public void set(String region, Serializable key, Object value, boolean notify) {
+        set(region, key, value, CacheConstans.DEFAULT_TIME, notify);
+    }
+
+
+    public void set(String region, Map<Serializable, Object> data, boolean notify) {
+        set(region, data, CacheConstans.DEFAULT_TIME, notify);
+    }
+
+
+    /**
+     * Add an item to the cache
+     * region use default value
+     *
+     * @param key   cache key
+     * @param value cache value
+     *              seconds cache Expiration use default time
+     */
+    public void set(Serializable key, Object value, boolean notify) {
+        set(CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME, notify);
     }
 
     /**
@@ -146,20 +182,8 @@ public class CacheKit {
      * @param value cache value
      *              seconds cache Expiration use default time
      */
-    public void set(Serializable key, Object value,boolean notify) {
-        set(CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME,notify);
-    }
-
-    /**
-     * Add an item to the cache
-     * region use default value
-     *
-     * @param key   cache key
-     * @param value cache value
-     *              seconds cache Expiration use default time
-     */
-    public void set(Serializable key, Object value, int seconds,boolean notify) {
-        set(CacheConstans.NUllRegion, key, value, seconds,notify);
+    public void set(Serializable key, Object value, int seconds, boolean notify) {
+        set(CacheConstans.NUllRegion, key, value, seconds, notify);
     }
 
     /**
@@ -176,7 +200,7 @@ public class CacheKit {
             if (value == null)
                 remove(region, key);
             else {
-               if(notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
+                if (notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
                 CacheManager.set(level, region, key, value, seconds);
             }
         }
@@ -191,8 +215,8 @@ public class CacheKit {
      * @param value  cache value
      *               seconds cache Expiration use default time
      */
-    public void set(int level, String region, Serializable key, Object value,boolean notify) {
-        set(level, region, key, value, CacheConstans.DEFAULT_TIME,notify);
+    public void set(int level, String region, Serializable key, Object value, boolean notify) {
+        set(level, region, key, value, CacheConstans.DEFAULT_TIME, notify);
     }
 
     /**
@@ -203,8 +227,8 @@ public class CacheKit {
      * @param value cache value
      *              seconds cache Expiration use default time
      */
-    public void set(int level, Serializable key, Object value,boolean notify) {
-        set(level, CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME,notify);
+    public void set(int level, Serializable key, Object value, boolean notify) {
+        set(level, CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME, notify);
     }
 
     /**
@@ -223,12 +247,12 @@ public class CacheKit {
      * @param region : Cache region name
      * @param keys   : Cache key
      */
-    public void remove(String region, List<Serializable > keys) {
+    public void remove(String region, List<Serializable> keys) {
         for (Serializable key : keys) {
             sendEvictCmd(region, key);
         }
-        CacheManager.batchRemove(LEVEL1,region, keys);
-        CacheManager.batchRemove(LEVEL2,region, keys);
+        CacheManager.batchRemove(LEVEL1, region, keys);
+        CacheManager.batchRemove(LEVEL2, region, keys);
     }
 
     public void remove(List<Serializable> keys) {
