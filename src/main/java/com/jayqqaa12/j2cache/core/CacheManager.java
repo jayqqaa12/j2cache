@@ -151,7 +151,7 @@ public class CacheManager {
         if (data != null && !data.isEmpty()) {
             Cache cache = getCache(level, region);
             if (cache != null)
-                cache.pset(region,data,seconds);
+                cache.batchSet(region,data,seconds);
         }
     }
 

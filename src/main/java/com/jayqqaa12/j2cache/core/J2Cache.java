@@ -77,7 +77,7 @@ public class J2Cache {
         Object obj = cache().get(region, key);
         if (obj == null) {
             obj = data.load();
-            cache().set(key, obj, sec, false);
+            cache().set(region,key, obj, sec, false);
         }
         return (T) obj;
     }

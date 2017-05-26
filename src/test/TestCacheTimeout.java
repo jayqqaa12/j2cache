@@ -16,7 +16,7 @@ public class TestCacheTimeout {
         while (i++ < 100) {
             System.out.println("=====================  " + i);
 
-           User user = (User) J2Cache.get1("test","a2345",()->{
+           User user =  J2Cache.get1("test","a2345",()->{
                System.out.println("load");
                return user1;
            },3);

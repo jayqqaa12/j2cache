@@ -51,11 +51,13 @@ L1过期时不通知L2删除，L2手动删除时，通知其他L1进行删除操
 
 3.不想让其他节点清空消息的一定要使用setn方法
 
-4.spring使用如果在bean初始化的时候就使用了  可能因为依赖redis没有初始化而失败   可以使用 depends-on="xxx" 解决
+4.spring使用如果在bean初始化的时候就使用了  可能因为依赖redis没有初始化而失败   可以使用 depends-on="xxx" 解决  也可以使用@autowrte 来加载配置j2cache
 
 TODO
 
 1.重新定义spring注解的使用方式更好支持j2cahce ?
 
-2.解决高并发的 cache 穿透问题  (设置单线程定时刷新？)
+2.解决高并发的 cache 可能重复查询问题  （自动续租的方式）
+
+3.测试redis集群的支持性
 

@@ -1,12 +1,17 @@
 package com.jayqqaa12.j2cache.redis;
 
+import com.jayqqaa12.j2cache.util.CacheException;
 import com.jayqqaa12.j2cache.util.ConfigUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 
 public class RedisConnConfig {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RedisConnConfig.class);
 
     private String host="127.0.0.1";
     private int port =6379;
@@ -25,14 +30,21 @@ public class RedisConnConfig {
          * 如果为null就读取配置文件
          */
         if (poolConfig == null) {
+            LOG.warn("没有配置 JedisPoolConfig 默认使用j2cache.properties 进行初始化");
+
             poolConfig = new JedisPoolConfig();
             JedisPoolConfig config = new JedisPoolConfig();
 
-            host = ConfigUtil.getStr("redis.host", "127.0.0.1");
+            host = ConfigUtil.getStr("redis.host",null);
             password = ConfigUtil.getStr("redis.password", null);
             port = ConfigUtil.getInt("redis.port", 6379);
             timeout = ConfigUtil.getInt("redis.timeout", 2000);
             db = ConfigUtil.getInt("redis.database", 0);
+
+            if(host==null){
+                throw new CacheException("j2cache Error host 没有配置 请配置j2cache.properties");
+            }
+
 
             config.setBlockWhenExhausted(ConfigUtil.getBoolean("redis.blockWhenExhausted", true));
             //最大空闲连接数
@@ -58,6 +70,10 @@ public class RedisConnConfig {
             config.setTestOnReturn(ConfigUtil.getBoolean("redis.testOnReturn", false));
             config.setLifo(ConfigUtil.getBoolean("redis.lifo", false));
         }
+        else {
+            LOG.warn("加载 配置的 JedisPoolConfig 进行初始化");
+        }
+
 
         if (StringUtils.isEmpty(password)) {
             pool = new JedisPool(poolConfig, host, port, timeout);

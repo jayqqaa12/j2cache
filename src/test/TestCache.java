@@ -7,34 +7,31 @@ public class TestCache {
         System.setProperty("java.net.preferIPv4Stack", "true"); //Disable IPv6 in JVM
 
 
+
         User user1 = new User();
         user1.setName("12");
         user1.setAge("34");
 //
-//        J2Cache.set("session", 123,user1);//region
-//        J2Cache.set("session", "a13",user1);//region
-//
-//        J2Cache.set("a13",user1);//region
-//
-//        Object object =J2Cache.get("session",123);
-//        System.out.println("+++++a12 value :"+object);
-//
-//
-//        object =J2Cache.get("session", "a13");
-//        System.out.println("+++++a13 value :" + object);
+        J2Cache.set("session", 123,user1);//region
+        J2Cache.set("session", "a13",user1);//region
+
+        J2Cache.set("a13",user1);//region
+
+        Object object =J2Cache.get("session",123);
+        System.out.println("+++++a12 value :"+object);
 
 
-        J2Cache.set("agasdf", user1, user1);
+        object =J2Cache.get("session", "a13");
+        System.out.println("+++++a13 value :" + object);
 
 
-        User cache = J2Cache.get("agasdf", user1);
-        System.out.println(cache);
-        User user2 = new User();
-        user1.setName("user2");
-        J2Cache.set("agasdf", user1, user2);
+        J2Cache.set1("session-2",1234);
 
-        cache = J2Cache.get("agasdf", user1);
-        System.out.println(cache);
+        J2Cache.get2("session-2");
+
+
+
+
 
 
 

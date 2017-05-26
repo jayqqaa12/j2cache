@@ -26,7 +26,7 @@ public class NullCache implements Cache {
     }
 
     @Override
-    public void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+    public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
 
     }
 

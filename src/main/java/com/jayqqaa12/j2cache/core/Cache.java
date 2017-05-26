@@ -42,7 +42,7 @@ public interface Cache {
      */
     void set(String region, Serializable key, Object value, int seconds) throws CacheException;
 
-    void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException;
+    void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException;
 
     /**
      * @param key Cache key

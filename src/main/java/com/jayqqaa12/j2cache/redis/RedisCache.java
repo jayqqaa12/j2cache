@@ -153,7 +153,7 @@ public class RedisCache implements Cache {
     }
 
 
-    public void pset(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+    public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
         if (data == null || data.isEmpty())
             return;
         else if (region == null) {
