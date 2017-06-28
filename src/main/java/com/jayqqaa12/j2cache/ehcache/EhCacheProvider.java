@@ -39,10 +39,12 @@ public class EhCacheProvider implements CacheProvider {
     }
 
 
-    public EhCache buildCache(String name) throws CacheException {
-        if (name == null) {
+    public EhCache buildCache(String name, boolean isCreate) throws CacheException {
+        if (!isCreate) return null;
+
+        if (name == null)
             name = CacheConstans.EHCACHE_DEFAULT_REGION;
-        }
+
         EhCache ehcache = caches.get(name);
         if (ehcache == null) {
             try {
@@ -52,7 +54,7 @@ public class EhCacheProvider implements CacheProvider {
                         net.sf.ehcache.Cache cache = manager.getCache(name);
                         if (cache == null) {
                             CacheManager manager = CacheManager.create();
-                            cache = new Cache(name, 10000,true, true, 0,0);
+                            cache = new Cache(name, 10000, true, true, 0, 0);
                             manager.addCache(cache);
                             log.debug("started use EHCache region: " + name);
                         }

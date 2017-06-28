@@ -104,7 +104,14 @@ public class EhCache implements Cache {
         });
     }
 
-
+    @Override
+    public <T> List<T> batchGet(String region) throws CacheException {
+        List list = new ArrayList();
+        getCache(region).getAll(keys(region)).forEach((k, v) -> {
+            if (v != null) list.add(v.getObjectValue());
+        });
+        return list;
+    }
 
 
     @Override

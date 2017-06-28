@@ -16,7 +16,7 @@ public class NullCacheProvider implements CacheProvider {
 
 
     @Override
-    public Cache buildCache(String regionName ) throws CacheException {
+    public Cache buildCache(String regionName, boolean isCreate) throws CacheException {
         return cache;
     }
 

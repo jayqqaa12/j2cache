@@ -25,7 +25,7 @@ public class RedisCacheProvider implements CacheProvider {
     private ExecutorService threadSubscribe;
 
     @Override
-    public Cache buildCache(String regionName) throws CacheException {
+    public Cache buildCache(String regionName, boolean isCreate) throws CacheException {
         return cache;
     }
 

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jayqqaa12</groupId>
     <artifactId>j2cache</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <properties>

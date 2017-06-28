@@ -54,10 +54,13 @@ public class CacheManager {
     }
 
 
-
-
     private final static Cache getCache(int level, String cacheName) {
-        return ((level == 1) ? l1Provider : l2Provider).buildCache(cacheName);
+        return getCache(level,cacheName,true);
+    }
+
+
+    private final static Cache getCache(int level, String cacheName,boolean isCreate) {
+        return ((level == 1) ? l1Provider : l2Provider).buildCache(cacheName,isCreate);
     }
 
 
@@ -127,7 +130,7 @@ public class CacheManager {
      */
     public final static void remove(int level, String region, Serializable key) {
         if (key != null) {
-            Cache cache = getCache(level, region);
+            Cache cache = getCache(level, region,false);
             if (cache != null)
                 cache.remove(region, key);
         }
@@ -142,7 +145,7 @@ public class CacheManager {
      */
     public final static void batchRemove(int level, String region, List keys) {
         if (keys != null && keys.size() > 0) {
-            Cache cache = getCache(level, region);
+            Cache cache = getCache(level, region,false);
             if (cache != null)
                 cache.remove(region, keys);
         }
@@ -172,7 +175,7 @@ public class CacheManager {
 
 
     public final static void clear(int level, String name) throws CacheException {
-        Cache cache = getCache(level, name);
+        Cache cache = getCache(level, name,false);
         if (cache != null)
             cache.clear(name);
     }

@@ -7,7 +7,7 @@ public interface CacheProvider {
 
     String name();
 
-    Cache buildCache(String regionName ) throws CacheException;
+    Cache buildCache(String regionName, boolean isCreate) throws CacheException;
 
     void start() throws CacheException;
 
