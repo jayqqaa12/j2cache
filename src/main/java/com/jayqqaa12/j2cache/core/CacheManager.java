@@ -54,6 +54,8 @@ public class CacheManager {
     }
 
 
+
+
     private final static Cache getCache(int level, String cacheName) {
         return ((level == 1) ? l1Provider : l2Provider).buildCache(cacheName);
     }
@@ -176,10 +178,17 @@ public class CacheManager {
     }
 
 
-    public static List<Object> keys(int level, String region) {
+    public static <T>  List<T>  keys(int level, String region) {
         Cache cache = getCache(level, region);
         if (cache != null)
             return cache.keys(region);
+        return new ArrayList<>();
+    }
+
+    public static <T>  List<T>  batchGet(int level, String region) {
+        Cache cache = getCache(level, region);
+        if (cache != null)
+            return cache.batchGet(region);
         return new ArrayList<>();
     }
 }

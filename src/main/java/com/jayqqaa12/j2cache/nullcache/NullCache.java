@@ -4,6 +4,7 @@ import com.jayqqaa12.j2cache.core.Cache;
 import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,11 @@ public class NullCache implements Cache {
     @Override
     public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
 
+    }
+
+    @Override
+    public List<Object> batchGet(String region) throws CacheException {
+        return new ArrayList<>();
     }
 
 

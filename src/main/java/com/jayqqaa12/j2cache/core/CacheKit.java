@@ -61,6 +61,7 @@ public class CacheKit {
         if (key != null) {
             obj = CacheManager.get(LEVEL1, region, key);
             if (obj == null) {
+                log.debug("can't found level 1 cache use level 2 cache");
                 obj = CacheManager.get(LEVEL2, region, key);
                 if (obj != null) {
                     CacheManager.set(LEVEL1, region, key, obj, CacheConstans.DEFAULT_TIME);
@@ -71,9 +72,9 @@ public class CacheKit {
     }
 
 
-    public List<Object> keys(int level, String region) {
+    public <T> List<T> keys(int level, String region) {
 
-        List<Object> keys = new ArrayList<>();
+        List<T> keys = new ArrayList<>();
         if (region != null) {
             keys = CacheManager.keys(level, region);
         }
@@ -130,20 +131,28 @@ public class CacheKit {
     }
 
 
-    public void batchSet( Map<Serializable, Object> data) {
-        batchSet(CacheConstans.NUllRegion,data, CacheConstans.DEFAULT_TIME);
+    public void batchSet(int level,  Map<Serializable, Object> data) {
+        batchSet(level,CacheConstans.NUllRegion,data, CacheConstans.DEFAULT_TIME);
     }
 
-    public void batchSet(String region, Map<Serializable, Object> data) {
-        batchSet(region,data, CacheConstans.DEFAULT_TIME);
+    public void batchSet(int level, String region, Map<Serializable, Object> data) {
+        batchSet(level,region,data, CacheConstans.DEFAULT_TIME);
     }
 
-    public void batchSet(String region, Map<Serializable, Object> data, int seconds) {
+    public void batchSet(int level, String region, Map<Serializable, Object> data, int seconds) {
         if (data != null && !data.isEmpty()) {
-            CacheManager.batchSet(LEVEL1, region,data, seconds);
-            CacheManager.batchSet(LEVEL2, region,data, seconds);
+            CacheManager.batchSet(level, region,data, seconds);
         }
     }
+
+
+    public <T>  List<T> batchGet( int level ,String region){
+
+        return CacheManager.batchGet(level, region);
+    }
+
+
+
 
     /**
      * 写入缓存

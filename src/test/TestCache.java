@@ -36,6 +36,9 @@ public class TestCache {
 
 
 
+
+
+
         /*object =cacheKit.get("session", "a12");
         System.out.println("+++++a12 value after delete:"+object);
         object =cacheKit.get("session", "a13");
@@ -54,6 +57,6 @@ public class TestCache {
             Thread.sleep(100);
         }*/
 
-        J2Cache.close();
+//        J2Cache.close();
     }
 }

@@ -20,7 +20,7 @@ public interface Cache {
      * @param region
      * @return
      */
-    List<Object> keys(String region);
+    <T>  List<T>  keys(String region);
 
     /**
      * Get an item from the cache
@@ -43,6 +43,15 @@ public interface Cache {
     void set(String region, Serializable key, Object value, int seconds) throws CacheException;
 
     void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException;
+
+    /**
+     * batch get the hash
+     *
+     * @param region
+     * @return
+     * @throws CacheException
+     */
+    <T>  List<T>  batchGet(String region) throws CacheException;
 
     /**
      * @param key Cache key

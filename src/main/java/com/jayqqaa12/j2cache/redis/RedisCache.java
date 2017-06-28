@@ -34,15 +34,15 @@ public class RedisCache implements Cache {
      * @param name
      * @return
      */
-    private String appendNameSpace(Serializable name) {
+    private String appendNameSpace(Object name) {
         String nameSpace = CacheConstans.NAMESPACE;
         if (nameSpace != null && !nameSpace.isEmpty()) {
-            name = nameSpace + ":" + name.toString();
+            name = nameSpace + ":" + name;
         }
         return name.toString();
     }
 
-    protected byte[] getKeyNameBytes(Serializable key) throws IOException {
+    protected byte[] getKeyNameBytes(Object key) throws IOException {
 
         return SerializationUtils.serialize(key);
     }
@@ -157,7 +157,7 @@ public class RedisCache implements Cache {
         if (data == null || data.isEmpty())
             return;
         else if (region == null) {
-            pset(data, seconds);
+            bastchSet(data, seconds);
         } else {
             String _region = appendNameSpace(region);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
@@ -174,6 +174,30 @@ public class RedisCache implements Cache {
                 throw new CacheException(e);
             }
         }
+    }
+
+    @Override
+    public <T> List<T> batchGet(String region) throws CacheException {
+
+        List<T> list = new ArrayList();
+        if (region == null) return list;
+
+        region = appendNameSpace(region);
+        try (Jedis cache = redisConnConfig.getPool().getResource()) {
+            cache.hgetAll(region).forEach((k, v) -> {
+                Object obj = null;
+                try {
+                    obj = SerializationUtils.deserialize(v.getBytes());
+                } catch (IOException e) {
+                    throw new CacheException(e);
+                }
+                if (obj != null) list.add((T) obj);
+            });
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+
+        return list;
     }
 
 
@@ -203,7 +227,7 @@ public class RedisCache implements Cache {
         }
     }
 
-    public void pset(Map<Serializable, Object> data, int seconds) {
+    public void bastchSet(Map<Serializable, Object> data, int seconds) {
 
         if (data == null || data.isEmpty()) return;
         else {
@@ -244,18 +268,17 @@ public class RedisCache implements Cache {
                     int size = keys.size();
                     byte[][] okeys = new byte[size][];
                     for (int i = 0; i < size; i++) {
-                        String _key = appendNameSpace(keys.get(i).toString());
+                        String _key = appendNameSpace(keys.get(i));
                         okeys[i] = getKeyNameBytes(_key);
                     }
-                    cache.del(okeys);
+                    cache.hdel(region.getBytes(), okeys);
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
             } else {
                 region = appendNameSpace(region);
                 try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                    cache.hdel(region.getBytes(), getKeyNameBytes(key.toString()
-                    ));
+                    cache.hdel(region.getBytes(), getKeyNameBytes(key));
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
@@ -273,11 +296,27 @@ public class RedisCache implements Cache {
     public void remove(Object key) throws CacheException {
         if (key == null)
             return;
-        String _key = appendNameSpace(key.toString());
-        try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            cache.del(getKeyNameBytes(_key));
-        } catch (Exception e) {
-            throw new CacheException(e);
+        if (key instanceof List) {
+            List keys = (List) key;
+            try (Jedis cache = redisConnConfig.getPool().getResource()) {
+                int size = keys.size();
+                byte[][] okeys = new byte[size][];
+                for (int i = 0; i < size; i++) {
+                    String _key = appendNameSpace(keys.get(i));
+                    okeys[i] = getKeyNameBytes(_key);
+                }
+                cache.del(okeys);
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        } else {
+
+            String _key = appendNameSpace(key);
+            try (Jedis cache = redisConnConfig.getPool().getResource()) {
+                cache.del(getKeyNameBytes(_key));
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
         }
     }
 
@@ -303,6 +342,7 @@ public class RedisCache implements Cache {
      * @param key
      * @param seconds
      */
+
     public Object exprie(String region, Serializable key, int seconds) {
         if (key == null)
             return null;

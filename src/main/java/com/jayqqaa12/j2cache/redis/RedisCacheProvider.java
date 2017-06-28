@@ -4,7 +4,6 @@ import com.jayqqaa12.j2cache.core.Cache;
 import com.jayqqaa12.j2cache.core.CacheConstans;
 import com.jayqqaa12.j2cache.core.CacheProvider;
 import com.jayqqaa12.j2cache.util.CacheException;
-import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.SafeEncoder;
 

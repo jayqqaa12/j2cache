@@ -19,8 +19,6 @@ import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL2;
  * set2 只设置二级缓存
  * <p>
  * setn 设置数据但是 不发送通知
- *
- *
  */
 public class J2Cache {
 
@@ -37,17 +35,17 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static <T>T get(Serializable key, CacheDataSource data) throws CacheException {
+    public static <T> T get(Serializable key, CacheDataSource data) throws CacheException {
         return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME);
     }
 
 
-    public static <T>T get(String region, Serializable key, CacheDataSource data) throws CacheException {
+    public static <T> T get(String region, Serializable key, CacheDataSource data) throws CacheException {
         return get(region, key, data, CacheConstans.DEFAULT_TIME);
     }
 
 
-    public static <T>T get1(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
+    public static <T> T get1(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = get1(region, key);
         if (obj == null) {
@@ -57,7 +55,7 @@ public class J2Cache {
         return (T) obj;
     }
 
-    public static <T>T get(Serializable key, CacheDataSource data, int sec) throws CacheException {
+    public static <T> T get(Serializable key, CacheDataSource data, int sec) throws CacheException {
         return get(CacheConstans.NUllRegion, key, data, sec);
     }
 
@@ -72,12 +70,12 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    private static <T>T get(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
+    private static <T> T get(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = cache().get(region, key);
         if (obj == null) {
             obj = data.load();
-            cache().set(region,key, obj, sec, false);
+            cache().set(region, key, obj, sec, false);
         }
         return (T) obj;
     }
@@ -144,29 +142,29 @@ public class J2Cache {
      * @param key
      * @return
      */
-    public static <T>T get(String region, Serializable key) {
+    public static <T> T get(String region, Serializable key) {
         return (T) cache().get(region, key);
     }
 
 
-    public static <T>T get(Serializable key) {
+    public static <T> T get(Serializable key) {
         return (T) cache().get(key);
     }
 
-    public static <T>T get1(String region, Serializable key) {
+    public static <T> T get1(String region, Serializable key) {
         return (T) cache().get(LEVEL1, region, key);
     }
 
 
-    public static <T>T get1(Serializable key) {
+    public static <T> T get1(Serializable key) {
         return (T) cache().get(LEVEL1, key);
     }
 
-    public static <T>T get2(String region, Serializable key) {
+    public static <T> T get2(String region, Serializable key) {
         return (T) cache().get(LEVEL2, region, key);
     }
 
-    public static <T>T get2(Serializable key) {
+    public static <T> T get2(Serializable key) {
         return (T) cache().get(LEVEL2, key);
     }
 
@@ -181,17 +179,47 @@ public class J2Cache {
     }
 
 
-    public static void batchSet( Map< Serializable, Object> data) {
-        cache().batchSet(data);
+    public static void batchSet(Map<Serializable, Object> data) {
+
+        cache().batchSet(LEVEL1, data);
+        cache().batchSet(LEVEL2, data);
     }
 
-    public static void batchSet(String region, Map< Serializable, Object> data) {
-        cache().batchSet(region,data);
+    public static void batchSet(String region, Map<Serializable, Object> data) {
+        cache().batchSet(LEVEL1, region, data);
+        cache().batchSet(LEVEL2, region, data);
     }
 
-    public static void batchSet(String region, Map<Serializable, Object> data,int seconds ) {
-        cache().batchSet(region,data,seconds);
+    public static void batchSet(String region, Map<Serializable, Object> data, int seconds) {
+        cache().batchSet(LEVEL1, region, data, seconds);
+        cache().batchSet(LEVEL2, region, data, seconds);
     }
+
+    public static void batchSet2(Map<Serializable, Object> data) {
+        cache().batchSet(LEVEL2, data);
+    }
+
+    public static void batchSet2(String region, Map<Serializable, Object> data) {
+        cache().batchSet(LEVEL2, region, data);
+    }
+
+
+    public static void batchSet2(String region, Map<Serializable, Object> data, int seconds) {
+        cache().batchSet(LEVEL2, region, data, seconds);
+    }
+
+
+    public static <T> List<T> batchGet1(String region) {
+
+        return cache().batchGet(LEVEL1, region);
+    }
+
+    public static <T> List<T> batchGet2(String region) {
+        return cache().batchGet(LEVEL2, region);
+    }
+
+
+
 
     public static void setn(Serializable key, Object value) {
         cache().set(key, value, false);
@@ -259,11 +287,11 @@ public class J2Cache {
     }
 
 
-    public static List<Object> keys1(String region) {
+    public static <T> List<T> keys1(String region) {
         return cache().keys(LEVEL1, region);
     }
 
-    public static List<Object> keys2(String region) {
+    public static <T> List<T> keys2(String region) {
         return cache().keys(LEVEL2, region);
     }
 
