@@ -40,6 +40,15 @@ public class J2Cache {
     }
 
 
+    /**
+     * 注意region 不要使用变量
+     * @param region
+     * @param key
+     * @param data
+     * @param <T>
+     * @return
+     * @throws CacheException
+     */
     public static <T> T get(String region, Serializable key, CacheDataSource data) throws CacheException {
         return get(region, key, data, CacheConstans.DEFAULT_TIME);
     }
@@ -64,13 +73,15 @@ public class J2Cache {
      * 使用cache
      * 没有的话就调用获取数据接口来获取
      *
+     * 如果加了失效时间 redis 自动改为存 string 不存hash
+     *
      * @param region
      * @param key
      * @param data
      * @return
      * @throws CacheException
      */
-    private static <T> T get(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
+    public static <T> T get(String region, Serializable key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = cache().get(region, key);
         if (obj == null) {

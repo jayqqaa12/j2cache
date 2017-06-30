@@ -142,7 +142,12 @@ public class RedisCache implements Cache {
             remove(region, key);
         else if (region == null) {
             set(key, seconds, value);
-        } else {
+
+        }
+        else if(region != null&&seconds>0){
+            set(appendHashNameSpace(region,key),seconds,value);
+        }
+        else {
             String _region = appendNameSpace(region);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 cache.hset(_region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
@@ -151,6 +156,17 @@ public class RedisCache implements Cache {
             }
         }
     }
+
+
+    /**
+     * 如果是
+     * @param key
+     * @return
+     */
+    private String appendHashNameSpace(String region, Serializable key) {
+        return region+":"+key.toString() ;
+    }
+
 
 
     public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
