@@ -13,13 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL1;
+import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
+
 
 public class CacheKit {
     private final static Logger log = LoggerFactory.getLogger(CacheKit.class);
     private static CacheKit cache = new CacheKit();
 
-    public final static byte LEVEL1 = 1;
-    public final static byte LEVEL2 = 2;
 
     public static CacheKit cache() {
         return cache;

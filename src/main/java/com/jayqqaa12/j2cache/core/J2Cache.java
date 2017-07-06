@@ -6,8 +6,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL1;
-import static com.jayqqaa12.j2cache.core.CacheKit.LEVEL2;
+import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL1;
+import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
 
 /**
  * 缓存使用入口
@@ -108,9 +108,9 @@ public class J2Cache {
      * @param key
      * @param value
      */
-//    public static void set(String region, Serializable key, Object value, int seconds) {
-//        cache().set(region, key, value, seconds,true);
-//    }
+    public static void set(String region, Serializable key, Object value, int seconds) {
+        cache().set(region, key, value, seconds,true);
+    }
 
     /**
      * set 1级缓存的数据
@@ -121,9 +121,9 @@ public class J2Cache {
      * @param key
      * @param value
      */
-//    public static void setn(String region, Serializable key, Object value, int seconds) {
-//        cache().set(region, key, value, seconds,false);
-//    }
+    public static void setn(String region, Serializable key, Object value, int seconds) {
+        cache().set(region, key, value, seconds,false);
+    }
 
     /**
      * set 1级缓存的数据
@@ -274,7 +274,6 @@ public class J2Cache {
      * set 2级缓存的数据
      * 使用region redis 默认使用hash
      * ehcache 使用指定的region缓存
-     * 注意相同的 region只能设置一次 超时时间 ！(ehcache)
      *
      * @param region
      * @param key
@@ -282,6 +281,10 @@ public class J2Cache {
      */
     public static void set2(String region, Serializable key, Object value) {
         cache().set(LEVEL2, region, key, value, true);
+    }
+
+    public static void set2(String region, Serializable key, Object value,int sec) {
+        cache().set(LEVEL2, region, key, value,sec, true);
     }
 
 

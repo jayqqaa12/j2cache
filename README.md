@@ -53,11 +53,64 @@ L1过期时不通知L2删除，L2手动删除时，通知其他L1进行删除操
 
 4.spring使用如果在bean初始化的时候就使用了  可能因为依赖redis没有初始化而失败   可以使用 depends-on="xxx" 解决  也可以使用@autowrte 来加载配置j2cache
 
+
+
+=====================集成spring================================
+
+添加配置
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+    <context:component-scan base-package="com.jayqqaa12.j2cache.spring"/>
+
+    <bean class="com.jayqqaa12.j2cache.core.J2Cache" depends-on="redisCacheProvider"   destroy-method="close" init-method="cache" />
+
+    <bean id="redisConnConfig" class="com.jayqqaa12.j2cache.redis.RedisConnConfig"
+          p:host="${sys.redis.hostName}" p:port="${sys.redis.port}"
+          p:db="${sys.redis.database}" p:poolConfig-ref="jedisPoolConfig" p:password="${sys.redis.pass}"
+    />
+
+    <bean id="redisCacheProvider" class="com.jayqqaa12.j2cache.redis.RedisCacheProvider"  >
+        <property name="redisConnConfig" ref="redisConnConfig"/>
+    </bean>
+
+      <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+           <property name="maxTotal" value="20"/>
+           <property name="maxIdle" value="10"/>
+           <property name="minIdle" value="5"/>
+       </bean>
+
+
+使用注解
+
+
+@Cache
+
+对应的属性
+
+region
+key
+level
+expire
+notifyOther
+
+@CacheClear
+
+对应的属性
+
+region
+key
+
+
+
+
+
 TODO
 
-1.重新定义spring注解的使用方式更好支持j2cahce ?
+1. 集成spring boot
 
 2.解决高并发的 cache 可能重复查询问题  （自动续租的方式）
 
 3.测试redis集群的支持性
+
+4. cache 管理页面
+
 
