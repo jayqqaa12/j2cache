@@ -26,6 +26,8 @@ public class ReflectionUtils {
 
     private static Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
 
+
+
     /**
      * 调用Getter方法.
      * 支持多级，如：对象名.对象名.方法
