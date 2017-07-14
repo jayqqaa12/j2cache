@@ -27,8 +27,6 @@ public class CacheConstans {
 
     public final static int DEFAULT_TIME = Integer.valueOf(ConfigUtil.getStr("cache.defaultTime"));
 
-    //redis时前缀加namespace,多个子项目更清晰redis
-    public final static String NAMESPACE = ConfigUtil.getStr("cache.namespace");
     //空的RGION
     public static String NUllRegion = null;
 

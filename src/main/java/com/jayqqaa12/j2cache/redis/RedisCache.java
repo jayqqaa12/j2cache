@@ -1,7 +1,6 @@
 package com.jayqqaa12.j2cache.redis;
 
 import com.jayqqaa12.j2cache.core.Cache;
-import com.jayqqaa12.j2cache.core.CacheConstans;
 import com.jayqqaa12.j2cache.serializer.SerializationUtils;
 import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
@@ -26,23 +25,6 @@ public class RedisCache implements Cache {
         log.info(">>>>> RedisCache init success");
     }
 
-    /**
-     * 在region里增加一个可选的层级,作为命名空间,使结构更加清晰
-     * 同时满足小型应用,多个J2Cache共享一个redis database的场景
-     *
-     * @param name
-     * @return
-     */
-    private String appendNameSpace(Object name) {
-        String nameSpace = CacheConstans.NAMESPACE;
-
-        if (name == null) return nameSpace;
-
-        if (nameSpace != null && !nameSpace.isEmpty()) {
-            name = nameSpace + ":" + name;
-        }
-        return name.toString();
-    }
 
     protected byte[] getKeyNameBytes(Object key) throws IOException {
 
@@ -61,7 +43,6 @@ public class RedisCache implements Cache {
 
         List<Object> keys = new ArrayList<>();
         if (region == null) return keys;
-        region = appendNameSpace(region);
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
             Set<byte[]> bytes = cache.hkeys(region.getBytes());
             bytes.forEach((b) -> {
@@ -93,7 +74,6 @@ public class RedisCache implements Cache {
         if (region == null) {//直接获取值
             return get(key);
         }
-        region = appendNameSpace(region);
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
             byte[] b = cache.hget(region.getBytes(), getKeyNameBytes(key));
@@ -110,10 +90,9 @@ public class RedisCache implements Cache {
 
 
     public Object get(Object key) throws CacheException {
-        String _key = appendNameSpace(key);
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            byte[] b = cache.get(_key.getBytes());
+            byte[] b = cache.get(getKeyNameBytes(key));
             if (b != null)
                 obj = SerializationUtils.deserialize(b);
         } catch (Exception e) {
@@ -148,9 +127,8 @@ public class RedisCache implements Cache {
         } else if (region != null && seconds > 0) {
             set(appendHashNameSpace(region, key), seconds, value);
         } else {
-            String _region = appendNameSpace(region);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                cache.hset(_region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
+                cache.hset(region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -176,14 +154,13 @@ public class RedisCache implements Cache {
         else if (region == null) {
             bastchSet(data, seconds);
         } else {
-            String _region = appendNameSpace(region);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 Pipeline p = cache.pipelined();
                 for (Object k : data.keySet()) {
                     if (k == null) continue;
                     Object v = data.get(k);
                     if (v == null) remove(region, k);
-                    p.hset(_region.getBytes(), getKeyNameBytes(k), SerializationUtils.serialize(v));
+                    p.hset(region.getBytes(), getKeyNameBytes(k), SerializationUtils.serialize(v));
                 }
 
                 p.sync();
@@ -199,7 +176,6 @@ public class RedisCache implements Cache {
         List<T> list = new ArrayList();
         if (region == null) return list;
 
-        region = appendNameSpace(region);
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
             cache.hgetAll(region).forEach((k, v) -> {
                 Object obj = null;
@@ -232,12 +208,11 @@ public class RedisCache implements Cache {
         if (value == null)
             remove(key);
         else {
-            String _key = appendNameSpace(key);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 //为缓解缓存击穿 l2 缓存时间增加一点时间
                 if (seconds > 0)
-                    cache.setex(_key.getBytes(), (int) (seconds * 1.1), SerializationUtils.serialize(value));
-                else cache.set(_key.getBytes(), SerializationUtils.serialize(value));
+                    cache.setex(getKeyNameBytes(key), (int) (seconds * 1.1), SerializationUtils.serialize(value));
+                else cache.set(getKeyNameBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -252,13 +227,12 @@ public class RedisCache implements Cache {
                 Pipeline p = cache.pipelined();
                 for (Object k : data.keySet()) {
                     if (k == null) continue;
-                    String _key = appendNameSpace(k);
                     Object v = data.get(k);
                     if (v == null) remove(k);
                     //为缓解缓存击穿 l2 缓存时间增加一点时间
                     if (seconds > 0)
-                        p.setex(_key.getBytes(), (int) (seconds * 1.1), SerializationUtils.serialize(v));
-                    else p.set(_key.getBytes(), SerializationUtils.serialize(v));
+                        p.setex(getKeyNameBytes(k), (int) (seconds * 1.1), SerializationUtils.serialize(v));
+                    else p.set(getKeyNameBytes(k), SerializationUtils.serialize(v));
                 }
                 p.sync();
             } catch (Exception e) {
@@ -287,13 +261,11 @@ public class RedisCache implements Cache {
                     for (int i = 0; i < size; i++) {
                         okeys[i] = getKeyNameBytes(keys.get(i));
                     }
-                    String _region = appendNameSpace(region);
-                    cache.hdel(_region.getBytes(), okeys);
+                    cache.hdel(region.getBytes(), okeys);
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
             } else {
-                region = appendNameSpace(region);
                 try (Jedis cache = redisConnConfig.getPool().getResource()) {
                     cache.hdel(region.getBytes(), getKeyNameBytes(key));
                 } catch (Exception e) {
@@ -319,8 +291,7 @@ public class RedisCache implements Cache {
                 int size = keys.size();
                 byte[][] okeys = new byte[size][];
                 for (int i = 0; i < size; i++) {
-                    String _key = appendNameSpace(keys.get(i));
-                    okeys[i] = getKeyNameBytes(_key);
+                    okeys[i] = getKeyNameBytes(key);
                 }
                 cache.del(okeys);
             } catch (Exception e) {
@@ -328,9 +299,8 @@ public class RedisCache implements Cache {
             }
         } else {
 
-            String _key = appendNameSpace(key);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                cache.del(_key.getBytes());
+                cache.del(getKeyNameBytes(key));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -343,7 +313,6 @@ public class RedisCache implements Cache {
     @Override
     public void clear(String region) throws CacheException {
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            region = appendNameSpace(region);
             cache.del(getKeyNameBytes(region));
         } catch (Exception e) {
             throw new CacheException(e);
@@ -352,9 +321,6 @@ public class RedisCache implements Cache {
 
     /**
      * update exprie time
-     * <p>
-     * //FIXME
-     * hash 不能更新 所以直接返回
      *
      * @param key
      * @param seconds
@@ -363,15 +329,14 @@ public class RedisCache implements Cache {
     public Object exprie(String region, Object key, int seconds) {
         if (key == null)
             return null;
-        if (region == null || region.isEmpty()) {
-            String _key = appendNameSpace(key);
-            try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                return cache.expire(getKeyNameBytes(_key), seconds);
-            } catch (Exception e) {
-                throw new CacheException(e);
-            }
-        } else {
-            return get(region, key);
+        else if (region != null && !region.isEmpty()) {
+            key = appendHashNameSpace(region, key);
+        }
+
+        try (Jedis cache = redisConnConfig.getPool().getResource()) {
+            return cache.expire(getKeyNameBytes(key), seconds);
+        } catch (Exception e) {
+            throw new CacheException(e);
         }
     }
 
