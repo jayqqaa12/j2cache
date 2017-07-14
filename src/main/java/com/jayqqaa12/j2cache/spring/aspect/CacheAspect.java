@@ -44,12 +44,9 @@ public class CacheAspect {
         String region = StringUtils.isEmpty(cache.region())?null:cache.region();
         boolean nofity = cache.notifyOther();
         try {
-
             key = keyParser.buildKey(cache.key(), invocation);
-
             if (level == CacheConstans.LEVEL_ALL) result = j2Cache.get(region, key);
             else result = j2Cache.cache().get(level,region, key);
-
             if (result == null) {
                 result = invocation.proceed();
                 if (level == CacheConstans.LEVEL_ALL) j2Cache.cache().set(region,key, result, cache.expire(), nofity);

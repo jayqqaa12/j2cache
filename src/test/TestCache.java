@@ -49,6 +49,19 @@ public class TestCache {
         Assert.assertEquals(cache,null);
 
 
+        cache = J2Cache.get1(KEY);
+        J2Cache.set(cache,cache);
+
+        User data=J2Cache.get(cache) ;
+
+        System.out.println(data);
+        Assert.assertEquals(cache,data);
+
+        J2Cache.set(12,123);
+        int a=J2Cache.get2(12);
+
+        Assert.assertEquals(a,123);
+
 
 
     }

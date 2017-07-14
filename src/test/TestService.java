@@ -1,8 +1,6 @@
-package org.songbai.variety.quota.stk.service;
 
 import com.jayqqaa12.j2cache.spring.annotation.Cache;
 import com.jayqqaa12.j2cache.spring.annotation.CacheClear;
-import org.songbai.variety.model.user.UserModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,7 +41,7 @@ public class TestService {
 
 
     @Cache(key = "test3#user.id")
-    public int test3(UserModel user) {
+    public int test3(User user) {
         System.out.println("test3");
         return 1;
     }
@@ -66,16 +64,19 @@ public class TestService {
         return 1;
     }
 
+    public static final String TEST="TEST";
 
-    @Cache(key = "test7#list.![id]")
-    public int test7(List<UserModel> list) {
+
+
+    @Cache(key = TEST+"#list.![id]")
+    public int test7(List<User> list) {
         System.out.println("test7");
 
         return 1;
     }
 
     @Cache(region = "test8", key = "#user.id")
-    public int test8(UserModel user) {
+    public int test8(User user) {
         System.out.println("test8");
         return 1;
     }

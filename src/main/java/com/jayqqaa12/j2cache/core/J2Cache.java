@@ -282,10 +282,21 @@ public class J2Cache {
         cache().set(LEVEL2, region, key, value, true);
     }
 
+    public static void set2n(String region, Object key, Object value) {
+        cache().set(LEVEL2, region, key, value, false);
+    }
+
+
+
     public static void set2(String region, Object key, Object value,int sec) {
         cache().set(LEVEL2, region, key, value,sec, true);
     }
 
+
+
+    public static void set2n(Object key, Object value ) {
+        cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, false);
+    }
 
     /**
      * set 2级缓存的数据
@@ -299,6 +310,9 @@ public class J2Cache {
         cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, seconds, true);
     }
 
+    public static void set2n(Object key, Object value, int seconds) {
+        cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, seconds, false);
+    }
 
     public static <T> List<T> keys1(String region) {
         return cache().keys(LEVEL1, region);

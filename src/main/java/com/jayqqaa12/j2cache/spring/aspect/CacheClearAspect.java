@@ -36,11 +36,8 @@ public class CacheClearAspect {
 
         if (StringUtils.isNotBlank(cacheClear.key())) {
             Object key = keyParser.buildKey(cacheClear.key(), invocation);
-
             j2Cache.remove(region, key);
-
         }
-
         return invocation.proceed();
     }
 

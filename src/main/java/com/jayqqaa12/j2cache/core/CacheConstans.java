@@ -23,7 +23,6 @@ public class CacheConstans {
     public final static String L1_PROVIDER = ConfigUtil.getStr("cache.L1.provider");
     public final static String L2_PROVIDER = ConfigUtil.getStr("cache.L2.provider");
     //默认存储时间
-    public final static int DEFAULT_L1_TIME = Integer.valueOf(ConfigUtil.getStr("cache.L1.defaultTime"));
 
     public final static int DEFAULT_TIME = Integer.valueOf(ConfigUtil.getStr("cache.defaultTime"));
 

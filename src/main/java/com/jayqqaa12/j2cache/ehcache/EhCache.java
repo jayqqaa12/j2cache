@@ -66,8 +66,6 @@ public class EhCache implements Cache {
     @Override
     public void set(String region, Object key, Object value, int seconds) throws CacheException {
         try {
-            //如果设置使用默认的时间 替换成 l1的默认时间设置反正 内存缓存永远不过期 解决有可能通知失败导致内存不清空的问题
-            if(seconds==CacheConstans.DEFAULT_TIME) seconds=CacheConstans.DEFAULT_L1_TIME;
 
             if (region == null)
                 region = CacheConstans.EHCACHE_DEFAULT_REGION;
