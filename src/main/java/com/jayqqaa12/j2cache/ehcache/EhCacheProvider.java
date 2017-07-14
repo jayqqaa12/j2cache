@@ -43,7 +43,7 @@ public class EhCacheProvider implements CacheProvider {
         if (name == null)
             name = CacheConstans.EHCACHE_DEFAULT_REGION;
         if (caches.size() > 100) {
-            throw new CacheException("can't build more cache greater than 500  check you code can't use diff region ");
+            throw new CacheException("can't build more of greater than 500  check you code can't use diff region ");
         }
 
         EhCache ehcache = caches.get(name);

@@ -1,5 +1,6 @@
 package com.jayqqaa12.j2cache.core;
 
+import com.jayqqaa12.j2cache.lock.ILock;
 import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.util.List;
@@ -21,10 +22,13 @@ import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
  */
 public class J2Cache {
 
+    private static CacheKit cache = new CacheKit();
+    private static final LockKit lock = new LockKit();
 
     public static CacheKit cache() {
-        return CacheKit.cache();
+        return cache;
     }
+    public static LockKit lock() {return lock;}
 
     /**
      * 获取数据
@@ -41,6 +45,7 @@ public class J2Cache {
 
     /**
      * 注意region 不要使用变量
+     *
      * @param region
      * @param key
      * @param data
@@ -71,7 +76,7 @@ public class J2Cache {
      * 获取数据
      * 使用cache
      * 没有的话就调用获取数据接口来获取
-     *
+     * <p>
      * 如果加了失效时间 redis 自动改为存 string 不存hash
      *
      * @param region
@@ -95,20 +100,18 @@ public class J2Cache {
     }
 
     /**
-     *
      * set 缓存的数据
      * 使用region redis 默认使用hash
      * ehcache 使用指定的region缓存
      * 注意相同的 region只能设置一次 超时时间 ！(ehcache)
-     *
+     * <p>
      * redis默认存的是hash 所以不能修改时间
-     *
      *
      * @param key
      * @param value
      */
     public static void set(String region, Object key, Object value, int seconds) {
-        cache().set(region, key, value, seconds,true);
+        cache().set(region, key, value, seconds, true);
     }
 
     /**
@@ -116,12 +119,13 @@ public class J2Cache {
      * 使用region redis 默认使用hash
      * ehcache 使用指定的region缓存
      * 注意相同的 region只能设置一次 超时时间 ！(ehcache)
-     *但是不发送给其他节点来清空缓存
+     * 但是不发送给其他节点来清空缓存
+     *
      * @param key
      * @param value
      */
     public static void setn(String region, Object key, Object value, int seconds) {
-        cache().set(region, key, value, seconds,false);
+        cache().set(region, key, value, seconds, false);
     }
 
     /**
@@ -229,8 +233,6 @@ public class J2Cache {
     }
 
 
-
-
     public static void setn(Object key, Object value) {
         cache().set(key, value, false);
     }
@@ -287,14 +289,12 @@ public class J2Cache {
     }
 
 
-
-    public static void set2(String region, Object key, Object value,int sec) {
-        cache().set(LEVEL2, region, key, value,sec, true);
+    public static void set2(String region, Object key, Object value, int sec) {
+        cache().set(LEVEL2, region, key, value, sec, true);
     }
 
 
-
-    public static void set2n(Object key, Object value ) {
+    public static void set2n(Object key, Object value) {
         cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, false);
     }
 

@@ -58,14 +58,14 @@ public class RedisPubSubListener extends BinaryJedisPubSub {
      * 删除一级缓存的键对应内容
      *
      * @param region : Cache region name
-     * @param key    : cache key
+     * @param key    : of key
      */
     protected void onDeleteCacheKey(String region, Object key) {
         if (key instanceof List)
             CacheManager.batchRemove(1, region, (List) key);
         else
             CacheManager.remove(1, region, key);
-        log.debug("Received cache evict message, region=" + region + ",key=" + key);
+        log.debug("Received of evict message, region=" + region + ",key=" + key);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RedisPubSubListener extends BinaryJedisPubSub {
      */
     protected void onClearCacheKey(String region) {
         CacheManager.clear(1, region);
-        log.debug("Received cache clear message, region=" + region);
+        log.debug("Received of clear message, region=" + region);
     }
 
 }

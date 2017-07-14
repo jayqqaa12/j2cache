@@ -22,6 +22,9 @@ public class RedisConnConfig {
     private static JedisPool pool;
 
     public static JedisPool getPool() {
+
+        if(pool==null)  throw new CacheException("j2cache 未初始化成功");
+
         return pool;
     }
 

@@ -3,8 +3,6 @@ import com.jayqqaa12.j2cache.spring.annotation.Cache;
 import com.jayqqaa12.j2cache.spring.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * Created by 12 on 2017/7/6.
  */
@@ -40,12 +38,6 @@ public class TestService {
     }
 
 
-    @Cache(key = "test3#user.id")
-    public int test3(User user) {
-        System.out.println("test3");
-        return 1;
-    }
-
     @Cache(region = "region", key = "test4")
     public int test4() {
         System.out.println("test4");
@@ -64,21 +56,24 @@ public class TestService {
         return 1;
     }
 
-    public static final String TEST="TEST";
-
-
-
-    @Cache(key = TEST+"#list.![id]")
-    public int test7(List<User> list) {
-        System.out.println("test7");
-
-        return 1;
-    }
-
-    @Cache(region = "test8", key = "#user.id")
-    public int test8(User user) {
-        System.out.println("test8");
-        return 1;
-    }
+//    @Cache(key = "#list.![id]")
+//    public int test7(List<User> list) {
+//        System.out.println("test7");
+//
+//        return 1;
+//    }
+//
+//
+//    @Cache(key = "test3#user.id")
+//    public int test3(User user) {
+//        System.out.println("test3");
+//        return 1;
+//    }
+//
+//    @Cache(region = "test8", key = "#user.id")
+//    public int test8(User user) {
+//        System.out.println("test8");
+//        return 1;
+//    }
 
 }

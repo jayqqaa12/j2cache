@@ -37,7 +37,7 @@ public class CacheManager {
             log.info("Using L2 CacheProvider : " + l2Provider.getClass().getName());
 
         } catch (Exception e) {
-            throw new CacheException("Unabled to initialize cache providers", e);
+            throw new CacheException("Unabled to initialize of providers", e);
         }
     }
 

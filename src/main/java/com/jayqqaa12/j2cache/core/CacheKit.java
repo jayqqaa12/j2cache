@@ -18,14 +18,8 @@ import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
 
 public class CacheKit {
     private final static Logger log = LoggerFactory.getLogger(CacheKit.class);
-    private static CacheKit cache = new CacheKit();
 
-
-    public static CacheKit cache() {
-        return cache;
-    }
-
-    private CacheKit() {
+    CacheKit() {
         CacheManager.init();
     }
 
@@ -36,7 +30,7 @@ public class CacheKit {
      * memcache:NAMESPACE:key
      * REDIS:NAMESPACE:key
      *
-     * @param key cache key
+     * @param key of key
      * @return the cached object or null
      */
     public Object get(Object key) {
@@ -47,12 +41,12 @@ public class CacheKit {
     /**
      * 从缓存中取数据,先从1级取，再从2级取
      *
-     * @param region cache region
+     * @param region of region
      *               key格式：
      *               EHCACHE：用region,key
      *               memcache：NAMESPACE:region:key
      *               REDIS：使用hashs(region,key)
-     * @param key    cache key
+     * @param key    of key
      * @return the
      * cached object or null
      */
@@ -61,7 +55,7 @@ public class CacheKit {
         if (key != null) {
             obj = CacheManager.get(LEVEL1, region, key);
             if (obj == null) {
-                log.debug("can't found level 1 cache use level 2 cache");
+                log.debug("can't found level 1 of use level 2 of");
                 obj = CacheManager.get(LEVEL2, region, key);
                 if (obj != null) {
                     CacheManager.set(LEVEL1, region, key, obj, CacheConstans.DEFAULT_TIME);
@@ -86,9 +80,9 @@ public class CacheKit {
     /**
      * 获取数据,指定缓存的级别level
      *
-     * @param level  cache level
-     * @param region cache region
-     * @param key    cache key
+     * @param level  of level
+     * @param region of region
+     * @param key    of key
      * @return the cached object or null
      */
     public Object get(int level, String region, Object key) {
@@ -102,8 +96,8 @@ public class CacheKit {
     /**
      * 获取取数据,指定缓存的级别level
      *
-     * @param level cache level
-     * @param key   cache key
+     * @param level of level
+     * @param key   of key
      * @return the cached object or null
      */
     public Object get(int level, Object key) {
@@ -111,12 +105,12 @@ public class CacheKit {
     }
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      *
      * @param region
-     * @param key     cache key
-     * @param value   cache value
-     * @param seconds cache Expiration time
+     * @param key     of key
+     * @param value   of value
+     * @param seconds of Expiration time
      */
     public void set(String region, Object key, Object value, int seconds, boolean notify) {
         if (key != null) {
@@ -132,26 +126,24 @@ public class CacheKit {
 
 
     public void batchSet(int level, Map<?, ?> data) {
-        batchSet(level,CacheConstans.NUllRegion,data, CacheConstans.DEFAULT_TIME);
+        batchSet(level, CacheConstans.NUllRegion, data, CacheConstans.DEFAULT_TIME);
     }
 
     public void batchSet(int level, String region, Map<?, ?> data) {
-        batchSet(level,region,data, CacheConstans.DEFAULT_TIME);
+        batchSet(level, region, data, CacheConstans.DEFAULT_TIME);
     }
 
     public void batchSet(int level, String region, Map<?, ?> data, int seconds) {
         if (data != null && !data.isEmpty()) {
-            CacheManager.batchSet(level, region,data, seconds);
+            CacheManager.batchSet(level, region, data, seconds);
         }
     }
 
 
-    public <T>  List<T> batchGet( int level ,String region){
+    public <T> List<T> batchGet(int level, String region) {
 
         return CacheManager.batchGet(level, region);
     }
-
-
 
 
     /**
@@ -172,37 +164,37 @@ public class CacheKit {
 
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      * region use default value
      *
-     * @param key   cache key
-     * @param value cache value
-     *              seconds cache Expiration use default time
+     * @param key   of key
+     * @param value of value
+     *              seconds of Expiration use default time
      */
     public void set(Object key, Object value, boolean notify) {
         set(CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME, notify);
     }
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      * region use default value
      *
-     * @param key   cache key
-     * @param value cache value
-     *              seconds cache Expiration use default time
+     * @param key   of key
+     * @param value of value
+     *              seconds of Expiration use default time
      */
     public void set(Object key, Object value, int seconds, boolean notify) {
         set(CacheConstans.NUllRegion, key, value, seconds, notify);
     }
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      *
-     * @param level   cache level
+     * @param level   of level
      * @param region
-     * @param key     cache key
-     * @param value   cache value
-     * @param seconds cache Expiration time
+     * @param key     of key
+     * @param value   of value
+     * @param seconds of Expiration time
      */
     public void set(int level, String region, Object key, Object value, int seconds, boolean notify) {
         if (key != null) {
@@ -216,25 +208,25 @@ public class CacheKit {
     }
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      *
-     * @param level  cache level
+     * @param level  of level
      * @param region
-     * @param key    cache key
-     * @param value  cache value
-     *               seconds cache Expiration use default time
+     * @param key    of key
+     * @param value  of value
+     *               seconds of Expiration use default time
      */
     public void set(int level, String region, Object key, Object value, boolean notify) {
         set(level, region, key, value, CacheConstans.DEFAULT_TIME, notify);
     }
 
     /**
-     * Add an item to the cache
+     * Add an item to the of
      *
-     * @param level cache level
-     * @param key   cache key
-     * @param value cache value
-     *              seconds cache Expiration use default time
+     * @param level of level
+     * @param key   of key
+     * @param value of value
+     *              seconds of Expiration use default time
      */
     public void set(int level, Object key, Object value, boolean notify) {
         set(level, CacheConstans.NUllRegion, key, value, CacheConstans.DEFAULT_TIME, notify);
@@ -242,7 +234,7 @@ public class CacheKit {
 
     /**
      * @param key Cache key
-     *            Remove an item from the cache
+     *            Remove an item from the of
      */
     public void remove(Object key) {
         sendEvictCmd(CacheConstans.NUllRegion, key);
@@ -286,7 +278,7 @@ public class CacheKit {
 
 
     /**
-     * Clear the cache
+     * Clear the of
      *
      * @param region : Cache region name
      */
@@ -331,7 +323,7 @@ public class CacheKit {
      * 发送清除缓存的广播命令，通知其他的1级缓存也删除
      *
      * @param region : Cache region name
-     * @param key    : cache key
+     * @param key    : of key
      */
     public void sendEvictCmd(String region, Object key) {
 
@@ -339,7 +331,7 @@ public class CacheKit {
         try (Jedis jedis = RedisConnConfig.getPool().getResource()) {
             jedis.publish(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL), cmd.toBuffers());
         } catch (Exception e) {
-            log.error("Unable to delete cache,region=" + region + ",key=" + key, e);
+            log.error("Unable to delete of,region=" + region + ",key=" + key, e);
         }
 
     }

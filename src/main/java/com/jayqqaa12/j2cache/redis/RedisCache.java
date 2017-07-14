@@ -14,19 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class RedisCache implements Cache {
+public class RedisCache implements Cache  {
     private final static Logger log = LoggerFactory.getLogger(RedisCache.class);
     private final RedisConnConfig redisConnConfig;
 
+
     protected RedisCache(RedisConnConfig redisConnConfig) {
         if (redisConnConfig == null) throw new CacheException("redisConnConfig is null ");
-        redisConnConfig.init();
         this.redisConnConfig = redisConnConfig;
         log.info(">>>>> RedisCache init success");
     }
 
 
-    protected byte[] getKeyNameBytes(Object key) throws IOException {
+    protected byte[] getKeyBytes(Object key) throws IOException {
 
         return SerializationUtils.serialize(key);
     }
@@ -53,18 +53,18 @@ public class RedisCache implements Cache {
                 }
             });
         } catch (Exception e) {
-            log.error("Error occured when get data from redis2 cache", e);
+            log.error("Error occured when get data from redis2 of", e);
         }
         return keys;
     }
 
     /**
-     * Get an item from the cache, nontransactionally
+     * Get an item from the of, nontransactionally
      * region不为空。查询hash
      * region为空 直接返回get(key)
      *
-     * @param region cache region
-     * @param key    cache key
+     * @param region of region
+     * @param key    of key
      * @return the cached object or null
      */
     @Override
@@ -76,11 +76,11 @@ public class RedisCache implements Cache {
         }
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            byte[] b = cache.hget(region.getBytes(), getKeyNameBytes(key));
+            byte[] b = cache.hget(region.getBytes(), getKeyBytes(key));
             if (b != null)
                 obj = SerializationUtils.deserialize(b);
         } catch (Exception e) {
-            log.error("Error occured when get data from redis2 cache", e);
+            log.error("Error occured when get data from redis2 of", e);
             if (e instanceof IOException || e instanceof NullPointerException)
                 remove(region, key);
         }
@@ -92,11 +92,11 @@ public class RedisCache implements Cache {
     public Object get(Object key) throws CacheException {
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            byte[] b = cache.get(getKeyNameBytes(key));
+            byte[] b = cache.get(getKeyBytes(key));
             if (b != null)
                 obj = SerializationUtils.deserialize(b);
         } catch (Exception e) {
-            log.error("Error occured when get data from redis2 cache", e);
+            log.error("Error occured when get data from redis2 of", e);
             if (e instanceof IOException || e instanceof NullPointerException)
                 remove(key);
         }
@@ -110,9 +110,9 @@ public class RedisCache implements Cache {
      * 有设置时间的都自动转为普通key
      *
      * @param region
-     * @param key     cache key
-     * @param value   cache value
-     * @param seconds cache Expiration time
+     * @param key     of key
+     * @param value   of value
+     * @param seconds of Expiration time
      * @throws CacheException
      */
     @Override
@@ -128,7 +128,7 @@ public class RedisCache implements Cache {
             set(appendHashNameSpace(region, key), seconds, value);
         } else {
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                cache.hset(region.getBytes(), getKeyNameBytes(key), SerializationUtils.serialize(value));
+                cache.hset(region.getBytes(), getKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -160,7 +160,7 @@ public class RedisCache implements Cache {
                     if (k == null) continue;
                     Object v = data.get(k);
                     if (v == null) remove(region, k);
-                    p.hset(region.getBytes(), getKeyNameBytes(k), SerializationUtils.serialize(v));
+                    p.hset(region.getBytes(), getKeyBytes(k), SerializationUtils.serialize(v));
                 }
 
                 p.sync();
@@ -211,8 +211,8 @@ public class RedisCache implements Cache {
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 //为缓解缓存击穿 l2 缓存时间增加一点时间
                 if (seconds > 0)
-                    cache.setex(getKeyNameBytes(key), (int) (seconds * 1.1), SerializationUtils.serialize(value));
-                else cache.set(getKeyNameBytes(key), SerializationUtils.serialize(value));
+                    cache.setex(getKeyBytes(key), (int) (seconds * 1.1), SerializationUtils.serialize(value));
+                else cache.set(getKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -231,8 +231,8 @@ public class RedisCache implements Cache {
                     if (v == null) remove(k);
                     //为缓解缓存击穿 l2 缓存时间增加一点时间
                     if (seconds > 0)
-                        p.setex(getKeyNameBytes(k), (int) (seconds * 1.1), SerializationUtils.serialize(v));
-                    else p.set(getKeyNameBytes(k), SerializationUtils.serialize(v));
+                        p.setex(getKeyBytes(k), (int) (seconds * 1.1), SerializationUtils.serialize(v));
+                    else p.set(getKeyBytes(k), SerializationUtils.serialize(v));
                 }
                 p.sync();
             } catch (Exception e) {
@@ -244,7 +244,7 @@ public class RedisCache implements Cache {
 
     /**
      * @param key Cache key
-     *            Remove an item from the cache
+     *            Remove an item from the of
      */
     @Override
     public void remove(String region, Object key) throws CacheException {
@@ -259,7 +259,7 @@ public class RedisCache implements Cache {
                     int size = keys.size();
                     byte[][] okeys = new byte[size][];
                     for (int i = 0; i < size; i++) {
-                        okeys[i] = getKeyNameBytes(keys.get(i));
+                        okeys[i] = getKeyBytes(keys.get(i));
                     }
                     cache.hdel(region.getBytes(), okeys);
                 } catch (Exception e) {
@@ -267,7 +267,7 @@ public class RedisCache implements Cache {
                 }
             } else {
                 try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                    cache.hdel(region.getBytes(), getKeyNameBytes(key));
+                    cache.hdel(region.getBytes(), getKeyBytes(key));
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
@@ -280,7 +280,7 @@ public class RedisCache implements Cache {
 
     /**
      * @param key Cache key
-     *            Remove an item from the cache
+     *            Remove an item from the of
      */
     public void remove(Object key) throws CacheException {
         if (key == null)
@@ -291,7 +291,7 @@ public class RedisCache implements Cache {
                 int size = keys.size();
                 byte[][] okeys = new byte[size][];
                 for (int i = 0; i < size; i++) {
-                    okeys[i] = getKeyNameBytes(key);
+                    okeys[i] = getKeyBytes(key);
                 }
                 cache.del(okeys);
             } catch (Exception e) {
@@ -300,7 +300,7 @@ public class RedisCache implements Cache {
         } else {
 
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
-                cache.del(getKeyNameBytes(key));
+                cache.del(getKeyBytes(key));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -308,12 +308,12 @@ public class RedisCache implements Cache {
     }
 
     /**
-     * Clear the cache
+     * Clear the of
      */
     @Override
     public void clear(String region) throws CacheException {
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            cache.del(getKeyNameBytes(region));
+            cache.del(getKeyBytes(region));
         } catch (Exception e) {
             throw new CacheException(e);
         }
@@ -334,7 +334,7 @@ public class RedisCache implements Cache {
         }
 
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
-            return cache.expire(getKeyNameBytes(key), seconds);
+            return cache.expire(getKeyBytes(key), seconds);
         } catch (Exception e) {
             throw new CacheException(e);
         }
@@ -344,4 +344,6 @@ public class RedisCache implements Cache {
     public void destory() {
         redisConnConfig.getPool().destroy();
     }
+
+
 }

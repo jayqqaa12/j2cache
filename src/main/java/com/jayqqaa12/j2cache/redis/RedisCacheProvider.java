@@ -33,9 +33,8 @@ public class RedisCacheProvider implements CacheProvider {
     public void start() throws CacheException {
 
         if (redisConnConfig == null) redisConnConfig = new RedisConnConfig();
-
+        redisConnConfig.init();
         cache = new RedisCache(redisConnConfig);
-
         //订阅消息频道
         threadSubscribe = Executors.newSingleThreadExecutor();
         threadSubscribe.execute(() -> {
