@@ -35,7 +35,7 @@ public class Command {
     private int src;
     private byte operator;
     private String region;
-    private Serializable key;
+    private Object key;
 
     private static int genRandomSrc() {
         long ct = System.currentTimeMillis();
@@ -44,7 +44,7 @@ public class Command {
     }
 
 
-    public Command(byte operator, String region, Serializable key) {
+    public Command(byte operator, String region, Object key) {
         this.operator = operator;
         if (region == null)
             region = CacheConstans.EHCACHE_DEFAULT_REGION;
@@ -140,7 +140,7 @@ public class Command {
         this.region = region;
     }
 
-    public Serializable getKey() {
+    public Object getKey() {
         return key;
     }
 

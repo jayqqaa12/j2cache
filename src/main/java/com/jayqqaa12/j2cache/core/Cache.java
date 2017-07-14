@@ -2,7 +2,6 @@ package com.jayqqaa12.j2cache.core;
 
 import com.jayqqaa12.j2cache.util.CacheException;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public interface Cache {
      * @param key    cache key
      * @return the cached object or null
      */
-    Object get(String region, Serializable key) throws CacheException;
+    Object get(String region, Object key) throws CacheException;
 
     /**
      * Add an item to the cache
@@ -40,9 +39,9 @@ public interface Cache {
      * @param value   cache value
      * @param seconds cache Expiration time
      */
-    void set(String region, Serializable key, Object value, int seconds) throws CacheException;
+    void set(String region, Object key, Object value, int seconds) throws CacheException;
 
-    void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException;
+    void batchSet(String region, Map<?, ?> data, int seconds) throws CacheException;
 
     /**
      * batch get the hash
@@ -70,6 +69,6 @@ public interface Cache {
      * @param key
      * @param seconds
      */
-    Object exprie(String region, Serializable key, int seconds);
+    Object exprie(String region, Object key, int seconds);
 
 }

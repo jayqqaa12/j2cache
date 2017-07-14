@@ -12,8 +12,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-
 /**
  * @author 12
  */
@@ -37,11 +35,9 @@ public class CacheClearAspect {
         String region = StringUtils.isEmpty(cacheClear.region()) ? null : cacheClear.region();
 
         if (StringUtils.isNotBlank(cacheClear.key())) {
-            String key = keyParser.buildKey(cacheClear.key(), invocation);
+            Object key = keyParser.buildKey(cacheClear.key(), invocation);
 
-            // 可能为数组
-            if (key.contains(",")) j2Cache.remove(region, Arrays.asList(key.split(",")));
-            else j2Cache.remove(region, key);
+            j2Cache.remove(region, key);
 
         }
 

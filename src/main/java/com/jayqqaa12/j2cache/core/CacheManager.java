@@ -7,7 +7,6 @@ import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class CacheManager {
      * @param key    Cache key
      * @return Cache object
      */
-    public final static Object get(int level, String region, Serializable key) {
+    public final static Object get(int level, String region, Object key) {
         if (key != null) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -95,7 +94,7 @@ public class CacheManager {
      * @param key         Cache key
      * @return Cache object
      */
-    public final static <T> T get(int level, Class<T> resultClass, String name, Serializable key) {
+    public final static <T> T get(int level, Class<T> resultClass, String name, Object key) {
         if (key != null) {
             Cache cache = getCache(level, name);
             if (cache != null)
@@ -113,7 +112,7 @@ public class CacheManager {
      * @param value   Cache value
      * @param seconds Cache time
      */
-    public final static void set(int level, String region, Serializable key, Object value, int seconds) {
+    public final static void set(int level, String region, Object key, Object value, int seconds) {
         if (key != null && value != null) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -128,7 +127,7 @@ public class CacheManager {
      * @param region Cache region name
      * @param key    Cache key
      */
-    public final static void remove(int level, String region, Serializable key) {
+    public final static void remove(int level, String region, Object key) {
         if (key != null) {
             Cache cache = getCache(level, region,false);
             if (cache != null)
@@ -152,7 +151,7 @@ public class CacheManager {
     }
 
 
-    public final static void batchSet(int level, String region, Map<Serializable,Object> data,int seconds) {
+    public final static void batchSet(int level, String region, Map<?, ?> data,int seconds) {
         if (data != null && !data.isEmpty()) {
             Cache cache = getCache(level, region);
             if (cache != null)
@@ -161,7 +160,7 @@ public class CacheManager {
     }
 
 
-    public final static Object exprie(int level, String region, Serializable key, int seconds) {
+    public final static Object exprie(int level, String region, Object key, int seconds) {
         if (key != null) {
             Cache cache = getCache(level, region);
             if (cache != null) {

@@ -42,7 +42,7 @@ public class EhCacheProvider implements CacheProvider {
     public EhCache buildCache(String name, boolean isCreate) throws CacheException {
         if (name == null)
             name = CacheConstans.EHCACHE_DEFAULT_REGION;
-        if (caches.size() > 500) {
+        if (caches.size() > 100) {
             throw new CacheException("can't build more cache greater than 500  check you code can't use diff region ");
         }
 
@@ -57,8 +57,7 @@ public class EhCacheProvider implements CacheProvider {
                     if (ehcache == null) {
                         net.sf.ehcache.Cache cache = manager.getCache(name);
                         if (cache == null) {
-                            CacheManager manager = CacheManager.create();
-                            cache = new Cache(name, 10000, true, true, 0, 0);
+                            cache = new Cache(name, 20_000, false, true, 0, 0);
                             manager.addCache(cache);
                             log.debug("started use EHCache region: " + name);
                         }

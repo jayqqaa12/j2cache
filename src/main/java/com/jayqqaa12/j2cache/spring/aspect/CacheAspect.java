@@ -39,7 +39,7 @@ public class CacheAspect {
     public Object interceptor(ProceedingJoinPoint invocation, Cache cache)
             throws Throwable {
         Object result = null;
-        String key = null;
+        Object key = null;
         int level = cache.level();
         String region = StringUtils.isEmpty(cache.region())?null:cache.region();
         boolean nofity = cache.notifyOther();

@@ -10,7 +10,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class RedisCache implements Cache {
      * @return the cached object or null
      */
     @Override
-    public Object get(String region, Serializable key) throws CacheException {
+    public Object get(String region, Object key) throws CacheException {
         if (null == key)
             return null;
         if (region == null) {//直接获取值
@@ -110,7 +109,7 @@ public class RedisCache implements Cache {
     }
 
 
-    public Object get(Serializable key) throws CacheException {
+    public Object get(Object key) throws CacheException {
         String _key = appendNameSpace(key);
         Object obj = null;
         try (Jedis cache = redisConnConfig.getPool().getResource()) {
@@ -138,7 +137,7 @@ public class RedisCache implements Cache {
      * @throws CacheException
      */
     @Override
-    public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
+    public void set(String region, Object key, Object value, int seconds) throws CacheException {
         if (key == null)
             return;
         if (value == null)
@@ -165,12 +164,13 @@ public class RedisCache implements Cache {
      * @param key
      * @return
      */
-    private String appendHashNameSpace(String region, Serializable key) {
+    private String appendHashNameSpace(String region, Object key) {
         return region + ":" + key.toString();
     }
 
 
-    public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+    @Override
+    public void batchSet(String region, Map<?, ?> data, int seconds) throws CacheException {
         if (data == null || data.isEmpty())
             return;
         else if (region == null) {
@@ -179,7 +179,7 @@ public class RedisCache implements Cache {
             String _region = appendNameSpace(region);
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 Pipeline p = cache.pipelined();
-                for (Serializable k : data.keySet()) {
+                for (Object k : data.keySet()) {
                     if (k == null) continue;
                     Object v = data.get(k);
                     if (v == null) remove(region, k);
@@ -226,7 +226,7 @@ public class RedisCache implements Cache {
      * @param value   值
      * @return
      */
-    public void set(Serializable key, int seconds, Object value) {
+    public void set(Object key, int seconds, Object value) {
         if (key == null)
             return;
         if (value == null)
@@ -236,7 +236,7 @@ public class RedisCache implements Cache {
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 //为缓解缓存击穿 l2 缓存时间增加一点时间
                 if (seconds > 0)
-                    cache.setex(_key.getBytes(), (int) (seconds * 1.5), SerializationUtils.serialize(value));
+                    cache.setex(_key.getBytes(), (int) (seconds * 1.1), SerializationUtils.serialize(value));
                 else cache.set(_key.getBytes(), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
@@ -244,20 +244,20 @@ public class RedisCache implements Cache {
         }
     }
 
-    public void bastchSet(Map<Serializable, Object> data, int seconds) {
+    public void bastchSet(Map<?, ?> data, int seconds) {
 
         if (data == null || data.isEmpty()) return;
         else {
             try (Jedis cache = redisConnConfig.getPool().getResource()) {
                 Pipeline p = cache.pipelined();
-                for (Serializable k : data.keySet()) {
+                for (Object k : data.keySet()) {
                     if (k == null) continue;
                     String _key = appendNameSpace(k);
                     Object v = data.get(k);
                     if (v == null) remove(k);
                     //为缓解缓存击穿 l2 缓存时间增加一点时间
                     if (seconds > 0)
-                        p.setex(_key.getBytes(), (int) (seconds * 1.5), SerializationUtils.serialize(v));
+                        p.setex(_key.getBytes(), (int) (seconds * 1.1), SerializationUtils.serialize(v));
                     else p.set(_key.getBytes(), SerializationUtils.serialize(v));
                 }
                 p.sync();
@@ -360,7 +360,7 @@ public class RedisCache implements Cache {
      * @param seconds
      */
 
-    public Object exprie(String region, Serializable key, int seconds) {
+    public Object exprie(String region, Object key, int seconds) {
         if (key == null)
             return null;
         if (region == null || region.isEmpty()) {

@@ -21,7 +21,6 @@ import com.jayqqaa12.j2cache.core.CacheConstans;
 import com.jayqqaa12.j2cache.util.CacheException;
 import net.sf.ehcache.Element;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class EhCache implements Cache {
     }
 
     @Override
-    public Object get(String region, Serializable key) throws CacheException {
+    public Object get(String region, Object key) throws CacheException {
         try {
             if (key == null)
                 return null;
@@ -53,6 +52,7 @@ public class EhCache implements Cache {
 
                 net.sf.ehcache.Cache ehcache = getCache(region);
                 Element element = ehcache.get(key);
+
                 if (element != null)
                     return element.getObjectValue();
             }
@@ -64,7 +64,7 @@ public class EhCache implements Cache {
 
 
     @Override
-    public void set(String region, Serializable key, Object value, int seconds) throws CacheException {
+    public void set(String region, Object key, Object value, int seconds) throws CacheException {
         try {
             //如果设置使用默认的时间 替换成 l1的默认时间设置反正 内存缓存永远不过期 解决有可能通知失败导致内存不清空的问题
             if(seconds==CacheConstans.DEFAULT_TIME) seconds=CacheConstans.DEFAULT_L1_TIME;
@@ -78,6 +78,7 @@ public class EhCache implements Cache {
                 Element element = new Element(key, value);
                 if (seconds > 0) element.setTimeToLive(seconds);
                 ehcache.put(element);
+
             }
 
         } catch (IllegalArgumentException e) {
@@ -97,7 +98,7 @@ public class EhCache implements Cache {
      * @throws CacheException
      */
     @Override
-    public void batchSet(String region, Map<Serializable, Object> data, int seconds) throws CacheException {
+    public void batchSet(String region, Map<?, ?> data, int seconds) throws CacheException {
 
         data.forEach((k,v)->{
             set(region,k,v,seconds);
@@ -158,7 +159,7 @@ public class EhCache implements Cache {
      * @param seconds
      */
     @Override
-    public Object exprie(String region, Serializable key, int seconds) {
+    public Object exprie(String region, Object key, int seconds) {
         return get(region, key);
     }
 

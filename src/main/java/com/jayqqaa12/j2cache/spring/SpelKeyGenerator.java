@@ -1,5 +1,6 @@
 package com.jayqqaa12.j2cache.spring;
 
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
@@ -24,7 +25,7 @@ public class SpelKeyGenerator {
      * @return
      * @throws NoSuchMethodException
      */
-    public String buildKey(String key, ProceedingJoinPoint invocation) throws NoSuchMethodException {
+    public Object buildKey(String key, ProceedingJoinPoint invocation) throws NoSuchMethodException {
 
         if (key.indexOf("#") == -1) {// 如果不是表达式，直接返回字符串
             return key;
@@ -38,8 +39,7 @@ public class SpelKeyGenerator {
             for (int i = 1; i < str.length; i++) {
                 keySpEL = keySpEL + "#" + str[i];
             }
-        }
-        else  keySpEL=key;
+        } else keySpEL = key;
 
 
         MethodSignature signature = (MethodSignature) invocation.getSignature();
@@ -59,6 +59,10 @@ public class SpelKeyGenerator {
             expCache.put(keySpEL, expression);
         }
 
-        return pre + expression.getValue(context, String.class);
+        Object value = expression.getValue(context, Object.class);
+
+        if (!StringUtils.isEmpty(pre)) return pre + value;
+        else return value;
+
     }
 }
