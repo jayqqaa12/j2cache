@@ -1,7 +1,10 @@
 
 import com.jayqqaa12.j2cache.spring.annotation.Cache;
 import com.jayqqaa12.j2cache.spring.annotation.CacheClear;
+import com.jayqqaa12.j2cache.spring.annotation.Lock;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by 12 on 2017/7/6.
@@ -55,6 +58,26 @@ public class TestService {
         System.out.println("test6");
         return 1;
     }
+
+
+    @Lock(key = "lock#key",lockExpire = 10)
+    public void testLock(int key){
+        System.out.println("get lock succ");
+
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Lock(key = "lock2",lockExpire = 10,spain = false)
+    public  void testLock2(){
+
+        System.out.println("get lock2 succ");
+
+    }
+
 
 //    @Cache(key = "#list.![id]")
 //    public int test7(List<User> list) {

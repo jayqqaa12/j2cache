@@ -1,6 +1,5 @@
 package com.jayqqaa12.j2cache.core;
 
-import com.jayqqaa12.j2cache.lock.ILock;
 import com.jayqqaa12.j2cache.util.CacheException;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class J2Cache {
      * @throws CacheException
      */
     public static <T> T get(Object key, CacheDataSource data) throws CacheException {
-        return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME);
+        return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME,false);
     }
 
 
@@ -54,7 +53,7 @@ public class J2Cache {
      * @throws CacheException
      */
     public static <T> T get(String region, Object key, CacheDataSource data) throws CacheException {
-        return get(region, key, data, CacheConstans.DEFAULT_TIME);
+        return get(region, key, data, CacheConstans.DEFAULT_TIME,false);
     }
 
 
@@ -69,7 +68,12 @@ public class J2Cache {
     }
 
     public static <T> T get(Object key, CacheDataSource data, int sec) throws CacheException {
-        return get(CacheConstans.NUllRegion, key, data, sec);
+        return get(CacheConstans.NUllRegion, key, data, sec,false);
+    }
+
+
+    public static <T> T get(String  region,Object key, CacheDataSource data, int sec) throws CacheException {
+        return get(region, key, data, sec,false);
     }
 
     /**
@@ -85,14 +89,19 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static <T> T get(String region, Object key, CacheDataSource data, int sec) throws CacheException {
+    public static <T> T get(String region, Object key, CacheDataSource data, int sec,boolean lock) throws CacheException {
+        try {
+            Object obj = cache().get(region, key);
+            if (obj == null) {
+//                if(lock)lock().spinLock(region+key,100);
+                obj = data.load();
+                cache().set(region, key, obj, sec, false);
+            }
 
-        Object obj = cache().get(region, key);
-        if (obj == null) {
-            obj = data.load();
-            cache().set(region, key, obj, sec, false);
+            return (T) obj;
+        } finally {
+//            if(lock)lock().unlock(region+key);
         }
-        return (T) obj;
     }
 
     public static void set(Object key, Object value, int seconds) {
