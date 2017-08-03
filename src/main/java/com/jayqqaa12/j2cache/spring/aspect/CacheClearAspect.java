@@ -29,8 +29,7 @@ public class CacheClearAspect {
     }
 
     @Around("aspect()&&@annotation(cacheClear)")
-    public Object interceptor(ProceedingJoinPoint invocation, CacheClear cacheClear)
-            throws Throwable {
+    public Object interceptor(ProceedingJoinPoint invocation, CacheClear cacheClear) throws Throwable {
 
         String region = StringUtils.isEmpty(cacheClear.region()) ? null : cacheClear.region();
 

@@ -36,24 +36,19 @@ public class CacheAspect {
     }
 
     @Around("aspect()&&@annotation(cache)")
-    public Object interceptor(ProceedingJoinPoint invocation, Cache cache)
-            throws Throwable {
+    public Object interceptor(ProceedingJoinPoint invocation, Cache cache) throws Throwable {
         Object result = null;
         Object key = null;
         int level = cache.level();
-        String region = StringUtils.isEmpty(cache.region())?null:cache.region();
+        String region = StringUtils.isEmpty(cache.region()) ? null : cache.region();
         boolean nofity = cache.notifyOther();
-        try {
-            key = keyParser.buildKey(cache.key(), invocation);
-            if (level == CacheConstans.LEVEL_ALL) result = j2Cache.get(region, key);
-            else result = j2Cache.cache().get(level,region, key);
-            if (result == null) {
-                result = invocation.proceed();
-                if (level == CacheConstans.LEVEL_ALL) j2Cache.cache().set(region,key, result, cache.expire(), nofity);
-                else j2Cache.cache().set(level, region, key, result, cache.expire(), nofity);
-            }
-        } catch (Exception e) {
-            LOG.error("获取缓存失败 {} ,{}" ,key, e);
+        key = keyParser.buildKey(cache.key(), invocation);
+        if (level == CacheConstans.LEVEL_ALL) result = j2Cache.get(region, key);
+        else result = j2Cache.cache().get(level, region, key);
+        if (result == null) {
+            result = invocation.proceed();
+            if (level == CacheConstans.LEVEL_ALL) j2Cache.cache().set(region, key, result, cache.expire(), nofity);
+            else j2Cache.cache().set(level, region, key, result, cache.expire(), nofity);
         }
         return result;
     }
