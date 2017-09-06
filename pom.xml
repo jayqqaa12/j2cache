@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jayqqaa12</groupId>
     <artifactId>j2cache</artifactId>
-    <version>1.5.7</version>
+    <version>1.6.2</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -46,33 +46,7 @@
     </distributionManagement>
 
 
-    <build>
-        <finalName>j2cache</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
 
-        <pluginManagement>
-            <plugins>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                        <optimize>true</optimize>
-                        <debug>true</debug>
-                        <showDeprecation>false</showDeprecation>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
-    </build>
 
     <!--  依赖的jar包 -->
     <dependencies>
@@ -185,6 +159,44 @@
     </dependencies>
 
 
+
+    <build>
+        <finalName>j2cache</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <optimize>true</optimize>
+                        <debug>true</debug>
+                        <showDeprecation>false</showDeprecation>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+
     <profiles>
 
         <profile>
@@ -192,18 +204,19 @@
             <build>
                 <plugins>
 
+
                     <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                        <!--<version>1.5</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<phase>verify</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>sign</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                    <!--<version>1.5</version>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<phase>verify</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>sign</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
                     <!--</plugin>-->
 
                     <plugin>
@@ -222,36 +235,36 @@
 
 
                     <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                        <!--<version>2.10</version>-->
-                        <!--<configuration>-->
-                            <!--<aggregate>true</aggregate>-->
-                            <!--<charset>UTF-8</charset>-->
-                            <!--<encoding>UTF-8</encoding>-->
-                            <!--<docencoding>UTF-8</docencoding>-->
-                        <!--</configuration>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<goals>-->
-                                    <!--<goal>jar</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                    <!--<version>2.10</version>-->
+                    <!--<configuration>-->
+                    <!--<aggregate>true</aggregate>-->
+                    <!--<charset>UTF-8</charset>-->
+                    <!--<encoding>UTF-8</encoding>-->
+                    <!--<docencoding>UTF-8</docencoding>-->
+                    <!--</configuration>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<goals>-->
+                    <!--<goal>jar</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
                     <!--</plugin>-->
 
                 </plugins>
             </build>
 
             <!--<distributionManagement>-->
-                <!--<snapshotRepository>-->
-                    <!--<id>oss</id>-->
-                    <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
-                <!--</snapshotRepository>-->
-                <!--<repository>-->
-                    <!--<id>oss</id>-->
-                    <!--<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
-                <!--</repository>-->
+            <!--<snapshotRepository>-->
+            <!--<id>oss</id>-->
+            <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+            <!--</snapshotRepository>-->
+            <!--<repository>-->
+            <!--<id>oss</id>-->
+            <!--<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+            <!--</repository>-->
             <!--</distributionManagement>-->
 
         </profile>

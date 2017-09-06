@@ -1,6 +1,7 @@
 package com.jayqqaa12.j2cache.core;
 
 import com.jayqqaa12.j2cache.lock.JedisLock;
+import com.jayqqaa12.j2cache.lock.JedisRateLimiter;
 import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import redis.clients.jedis.Jedis;
 
@@ -17,6 +18,13 @@ public class LockKit {
     LockKit() {
         CacheManager.init();
 
+    }
+
+
+    public String isLimit(int limit, int timeout) {
+        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
+            return JedisRateLimiter.acquireTokenFromBucket(cache, limit, timeout);
+        }
     }
 
     public boolean isLock(String key, int lockExpire) {

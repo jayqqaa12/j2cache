@@ -1,7 +1,9 @@
 package com.jayqqaa12.j2cache.lock;
 
 import redis.clients.jedis.Jedis;
-
+/**
+ * Created by 12 on 2017/7/17.
+ */
 public class JedisLock extends AbstractRedisLock {
 
     private Jedis jedis;

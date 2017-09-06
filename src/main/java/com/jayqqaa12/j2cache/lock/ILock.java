@@ -1,8 +1,6 @@
 package com.jayqqaa12.j2cache.lock;
-
 /**
- * 分布式锁接口
- * @author jiayu.qiu
+ * Created by 12 on 2017/7/17.
  */
 public interface ILock {
 
