@@ -85,9 +85,6 @@ public class RedisDelayQueue implements DelayQueue {
                     if (message == null) continue;
                     long delay = message.getCreateTime() + message.getTimeout() - System.currentTimeMillis();
 
-
-                    LOG.info("CREATE TIME  {}  past date {} ", new Date(message.getCreateTime()).toLocaleString(), new Date(message.getCreateTime() + message.getTimeout()).toLocaleString());
-
                     if (delay <= 0) {
                         delayQueueProcessListener.peekCallback(message);
                     } else {

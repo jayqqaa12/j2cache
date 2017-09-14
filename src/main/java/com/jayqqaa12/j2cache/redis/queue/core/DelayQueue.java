@@ -1,6 +1,6 @@
 package com.jayqqaa12.j2cache.redis.queue.core;
 
-public interface DelayQueue {
+public interface DelayQueue<T> {
 
     /**
      * @return 消息队列名
@@ -29,7 +29,7 @@ public interface DelayQueue {
 
     void clear();
 
-    boolean push(Message message);
+    boolean push(Message<T> message);
     /**
      * 开启消息队列监听
      */

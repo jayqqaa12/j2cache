@@ -1,5 +1,4 @@
 import com.jayqqaa12.j2cache.core.J2Cache;
-import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import com.jayqqaa12.j2cache.redis.queue.core.Message;
 import com.jayqqaa12.j2cache.redis.queue.redis.DelayQueueProcessListener;
 import com.jayqqaa12.j2cache.redis.queue.redis.RedisDelayQueue;
@@ -16,7 +15,7 @@ public class TestRedisDelayQueue {
 
 		J2Cache.get("aaa");
 
-		queue = new RedisDelayQueue("test", RedisConnConfig.getPool(), 60 * 1000,
+		queue = new RedisDelayQueue("test",
 				new DelayQueueProcessListener() {
 					public void pushCallback(Message message) {
 					}
