@@ -5,8 +5,11 @@ import com.jayqqaa12.j2cache.util.ConfigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.util.Pool;
 
 
 public class RedisConnConfig {
@@ -18,10 +21,10 @@ public class RedisConnConfig {
     private int timeout=2000;
     private String password;
     private JedisPoolConfig poolConfig;
-    private int db=0;
-    private static JedisPool pool;
+    private int database=0;
+    private static Pool<Jedis> pool;
 
-    public static JedisPool getPool() {
+    public static Pool<Jedis> getPool() {
 
         if(pool==null)  throw new CacheException("j2cache 未初始化成功");
 
@@ -42,7 +45,7 @@ public class RedisConnConfig {
             password = ConfigUtil.getStr("redis.password", null);
             port = ConfigUtil.getInt("redis.port", 6379);
             timeout = ConfigUtil.getInt("redis.timeout", 2000);
-            db = ConfigUtil.getInt("redis.database", 0);
+            database = ConfigUtil.getInt("redis.database", 0);
 
             if(host==null){
                 throw new CacheException("j2cache Error host 没有配置 请配置j2cache.properties");
@@ -81,7 +84,7 @@ public class RedisConnConfig {
         if (StringUtils.isEmpty(password)) {
             pool = new JedisPool(poolConfig, host, port, timeout);
         } else {
-            pool = new JedisPool(poolConfig, host, port, timeout, password, db);
+            pool = new JedisPool(poolConfig, host, port, timeout, password, database);
         }
     }
 
@@ -111,9 +114,7 @@ public class RedisConnConfig {
     }
 
 
-    public void setDb(int db) {
-        this.db = db;
+    public void setDatabase(int database) {
+        this.database = database;
     }
-
-
 }

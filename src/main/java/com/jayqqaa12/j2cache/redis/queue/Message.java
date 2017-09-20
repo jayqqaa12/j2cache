@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.redis.queue.core;
+package com.jayqqaa12.j2cache.redis.queue;
 
 import java.util.concurrent.TimeUnit;
 

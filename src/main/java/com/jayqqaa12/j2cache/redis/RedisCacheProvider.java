@@ -4,6 +4,8 @@ import com.jayqqaa12.j2cache.core.Cache;
 import com.jayqqaa12.j2cache.core.CacheConstans;
 import com.jayqqaa12.j2cache.core.CacheProvider;
 import com.jayqqaa12.j2cache.util.CacheException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.SafeEncoder;
 
@@ -14,6 +16,7 @@ import java.util.concurrent.Executors;
  * Redis 缓存实现
  */
 public class RedisCacheProvider implements CacheProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(RedisCacheProvider.class);
     private static RedisConnConfig redisConnConfig;
     private RedisCache cache;
     private RedisPubSubListener redisPubSubListener;
@@ -35,7 +38,8 @@ public class RedisCacheProvider implements CacheProvider {
 
         if (redisConnConfig == null) redisConnConfig = new RedisConnConfig();
         redisConnConfig.init();
-        cache = new RedisCache(redisConnConfig);
+
+        cache = new RedisCache();
         //订阅消息频道
         threadSubscribe = Executors.newSingleThreadExecutor();
         threadSubscribe.execute(() -> {
@@ -43,16 +47,16 @@ public class RedisCacheProvider implements CacheProvider {
             try (Jedis jedis = RedisConnConfig.getPool().getResource()) {
                 jedis.subscribe(redisPubSubListener, SafeEncoder.encode(CacheConstans.REDIS_CHANNEL));
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("J2cache exception {}",e);
             }
         });
 
 
-
+        LOG.info(">>>>> RedisCache init success");
     }
 
 
-    public void setRedisConnConfig(RedisConnConfig redisConnConfig) {
+    public static void setRedisConnConfig(RedisConnConfig redisConnConfig) {
         RedisCacheProvider.redisConnConfig = redisConnConfig;
     }
 

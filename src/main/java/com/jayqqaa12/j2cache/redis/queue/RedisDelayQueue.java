@@ -1,17 +1,14 @@
-package com.jayqqaa12.j2cache.redis.queue.redis;
+package com.jayqqaa12.j2cache.redis.queue;
 
 import com.alibaba.fastjson.JSON;
 import com.jayqqaa12.j2cache.redis.RedisConnConfig;
-import com.jayqqaa12.j2cache.redis.queue.core.DelayQueue;
-import com.jayqqaa12.j2cache.redis.queue.core.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.util.Pool;
 
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +22,7 @@ public class RedisDelayQueue implements DelayQueue {
 
     private transient final ReentrantLock lock = new ReentrantLock();
     private final Condition available = lock.newCondition();
-    private JedisPool jedisPool= RedisConnConfig.getPool();
+    private Pool<Jedis> jedisPool= RedisConnConfig.getPool();
     private long MAX_TIMEOUT = 525600000; // 最大超时时间不能超过一年
     private int unackTime = 60 * 1000;
     private String redisKeyPrefix;
@@ -76,7 +73,13 @@ public class RedisDelayQueue implements DelayQueue {
         executorService.execute(() -> {
             while (status) {
                 String id = peekId();
-                if (id == null) continue;
+                if (id == null){
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                    continue;
+                }
 
                 try (Jedis jedis = jedisPool.getResource()) {
                     String json = jedis.hget(messageStoreKey, id);

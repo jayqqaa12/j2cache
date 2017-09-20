@@ -1,7 +1,5 @@
-package com.jayqqaa12.j2cache.redis.queue.redis;
+package com.jayqqaa12.j2cache.redis.queue;
 
-
-import com.jayqqaa12.j2cache.redis.queue.core.Message;
 
 public interface DelayQueueProcessListener<T> {
 
