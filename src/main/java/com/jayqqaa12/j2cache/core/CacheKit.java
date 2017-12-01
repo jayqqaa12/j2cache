@@ -292,8 +292,12 @@ public class CacheKit {
      * 关闭到通道的连接
      */
     public void close() {
+
+
         CacheManager.shutdown(LEVEL1);
         CacheManager.shutdown(LEVEL2);
+
+        log.info("j2cache closed ");
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.jayqqaa12.j2cache.core;
 
 import com.jayqqaa12.j2cache.util.CacheException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
  * setn 设置数据但是 不发送通知
  */
 public class J2Cache {
+    private static final Logger LOG = LoggerFactory.getLogger(J2Cache.class);
 
     private static CacheKit cache = new CacheKit();
     private static final LockKit lock = new LockKit();

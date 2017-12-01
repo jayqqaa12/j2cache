@@ -7,7 +7,8 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-public class TestRedisDelayQueue {
+public class
+TestRedisDelayQueue {
 	RedisDelayQueue queue = null;
 
 	@Before
