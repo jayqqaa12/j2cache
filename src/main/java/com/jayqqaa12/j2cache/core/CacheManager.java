@@ -25,7 +25,7 @@ public class CacheManager {
         init();
     }
 
-    protected static void init() {
+    protected synchronized static void init() {
         try {
             if (l1Provider != null && l2Provider != null) return;
 

@@ -63,6 +63,7 @@ public class RedisCacheProvider implements CacheProvider {
     @Override
     public void stop() {
 
+//        redisPubSubListener.unsubscribe();
         redisPubSubListener.punsubscribe(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL));
         redisPubSubListener.close();
         threadSubscribe.shutdown();
