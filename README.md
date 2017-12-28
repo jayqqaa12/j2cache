@@ -88,34 +88,13 @@ spain  是否自旋等待  默认true  如果false的话就会直接返回 否�
 5. 做为KEY的对象 一定要实现 序列化接口 和 equal hashcode方法 否则无法判断是否为相同的key 导致无法存取对象
 
 
+
+### redis 集群设置
+
+
 ### 集成spring 
 
-
-XML添加配置
-
-```
-    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
-    <context:component-scan base-package="com.jayqqaa12.j2cache.spring"/>
-
-    <bean class="com.jayqqaa12.j2cache.core.J2Cache" depends-on="redisCacheProvider"   destroy-method="close" init-method="cache" />
-
-    <bean id="redisConnConfig" class="com.jayqqaa12.j2cache.redis.RedisConnConfig"
-          p:host="${sys.redis.hostName}" p:port="${sys.redis.port}"
-          p:db="${sys.redis.database}" p:poolConfig-ref="jedisPoolConfig" p:password="${sys.redis.pass}"
-    />
-
-    <bean id="redisCacheProvider" class="com.jayqqaa12.j2cache.redis.RedisCacheProvider"  >
-        <property name="redisConnConfig" ref="redisConnConfig"/>
-    </bean>
-
-      <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
-           <property name="maxTotal" value="20"/>
-           <property name="maxIdle" value="10"/>
-           <property name="minIdle" value="5"/>
-       </bean>
-
-```
-
+ 
 
 ### 集成Spring Boot
 
@@ -126,12 +105,9 @@ XML添加配置
 
 
 TODO
-
  
 1.解决高并发的 cache 可能重复查询问题  （自动续租的方式）
 
-2.测试redis集群的支持性
-
-3. cache 管理页面
+2. cache 管理页面
 
 

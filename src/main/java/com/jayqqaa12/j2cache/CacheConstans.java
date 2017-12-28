@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.core;
+package com.jayqqaa12.j2cache;
 
 import com.jayqqaa12.j2cache.util.ConfigUtil;
 
@@ -13,7 +13,7 @@ public class CacheConstans {
 
 
     //配置文件名字
-    public final static String CONFIG_FILE = "j2cache";//可以不带.properties
+    public final static String CONFIG_FILE = "net/oschina/j2cache";//可以不带.properties
     public final static String EHCACHE = "ehcache";
     public final static String REDIS = "redis";
     public final static String EHCACHE_DEFAULT_REGION = "__DEFAULT__";

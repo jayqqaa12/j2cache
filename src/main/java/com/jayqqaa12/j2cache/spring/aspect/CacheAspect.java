@@ -1,8 +1,8 @@
 package com.jayqqaa12.j2cache.spring.aspect;
 
 
-import com.jayqqaa12.j2cache.core.CacheConstans;
-import com.jayqqaa12.j2cache.core.J2Cache;
+import com.jayqqaa12.j2cache.CacheConstans;
+import com.jayqqaa12.j2cache.J2Cache;
 import com.jayqqaa12.j2cache.spring.SpelKeyGenerator;
 import com.jayqqaa12.j2cache.spring.annotation.Cache;
 import org.aspectj.lang.ProceedingJoinPoint;

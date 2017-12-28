@@ -1,7 +1,7 @@
 package com.jayqqaa12.j2cache.spring.annotation;
 
 
-import com.jayqqaa12.j2cache.core.CacheConstans;
+import com.jayqqaa12.j2cache.CacheConstans;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

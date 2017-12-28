@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.core;
+package com.jayqqaa12.j2cache;
 
 import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import com.jayqqaa12.j2cache.util.CacheException;
@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL1;
-import static com.jayqqaa12.j2cache.core.CacheConstans.LEVEL2;
+import static com.jayqqaa12.j2cache.CacheConstans.LEVEL1;
+import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
 
 
-public class CacheKit {
+class CacheKit {
     private final static Logger log = LoggerFactory.getLogger(CacheKit.class);
 
     CacheKit() {

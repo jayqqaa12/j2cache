@@ -1,7 +1,7 @@
 package com.jayqqaa12.j2cache.nullcache;
 
-import com.jayqqaa12.j2cache.core.Cache;
-import com.jayqqaa12.j2cache.core.CacheProvider;
+import com.jayqqaa12.j2cache.Cache;
+import com.jayqqaa12.j2cache.CacheProvider;
 import com.jayqqaa12.j2cache.util.CacheException;
 
 

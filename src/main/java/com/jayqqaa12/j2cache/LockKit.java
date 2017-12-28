@@ -1,7 +1,7 @@
-package com.jayqqaa12.j2cache.core;
+package com.jayqqaa12.j2cache;
 
-import com.jayqqaa12.j2cache.lock.JedisLock;
-import com.jayqqaa12.j2cache.lock.JedisRateLimiter;
+import com.jayqqaa12.j2cache.redis.lock.JedisLock;
+import com.jayqqaa12.j2cache.redis.lock.JedisRateLimiter;
 import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import redis.clients.jedis.Jedis;
 

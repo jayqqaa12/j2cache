@@ -1,6 +1,6 @@
 package com.jayqqaa12.j2cache.redis;
 
-import com.jayqqaa12.j2cache.core.CacheManager;
+import com.jayqqaa12.j2cache.CacheManager;
 import com.jayqqaa12.j2cache.util.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

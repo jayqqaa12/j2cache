@@ -1,6 +1,6 @@
 package com.jayqqaa12.j2cache.spring.boot.config;
 
-import com.jayqqaa12.j2cache.core.J2Cache;
+import com.jayqqaa12.j2cache.J2Cache;
 import com.jayqqaa12.j2cache.redis.RedisCacheProvider;
 import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import org.springframework.beans.BeanUtils;

@@ -3,7 +3,7 @@
  */
 package com.jayqqaa12.j2cache.util;
 
-import com.jayqqaa12.j2cache.core.CacheConstans;
+import com.jayqqaa12.j2cache.CacheConstans;
 import com.jayqqaa12.j2cache.serializer.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

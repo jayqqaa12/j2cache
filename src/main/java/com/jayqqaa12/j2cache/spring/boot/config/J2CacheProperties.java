@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Created by 12 on 2017/9/20.
 
  */
-@ConfigurationProperties(prefix = "j2cache")
+@ConfigurationProperties(prefix = "net/oschina/j2cache")
 public class J2CacheProperties {
 
     private Long defultTimeout;

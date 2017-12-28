@@ -15,8 +15,8 @@
  */
 package com.jayqqaa12.j2cache.ehcache;
 
-import com.jayqqaa12.j2cache.core.CacheConstans;
-import com.jayqqaa12.j2cache.core.CacheProvider;
+import com.jayqqaa12.j2cache.CacheConstans;
+import com.jayqqaa12.j2cache.CacheProvider;
 import com.jayqqaa12.j2cache.util.CacheException;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

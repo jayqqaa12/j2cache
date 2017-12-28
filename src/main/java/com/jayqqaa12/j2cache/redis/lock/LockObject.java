@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.lock;
+package com.jayqqaa12.j2cache.redis.lock;
 
 import com.alibaba.fastjson.JSON;
 import com.jayqqaa12.j2cache.util.UniqueUtil;

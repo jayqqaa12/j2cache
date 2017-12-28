@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.lock;
+package com.jayqqaa12.j2cache.redis.lock;
 
 /**
  * 基于Redis实现分布式锁

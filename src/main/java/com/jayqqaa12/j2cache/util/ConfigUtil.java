@@ -1,15 +1,15 @@
 package com.jayqqaa12.j2cache.util;
 
-import com.jayqqaa12.j2cache.core.CacheConstans;
-
 import java.util.ResourceBundle;
+
+import static com.jayqqaa12.j2cache.CacheConstans.CONFIG_FILE;
 
 
 public class ConfigUtil {
     protected static ResourceBundle resourceBundle;
 
     static {
-        String url = CacheConstans.CONFIG_FILE;
+        String url = CONFIG_FILE;
         url = url.replace(".properties", "");
         try {
             resourceBundle = ResourceBundle.getBundle(url);
@@ -44,5 +44,7 @@ public class ConfigUtil {
             return defaultValue;
         }
     }
+
+ 
 
 }

@@ -1,4 +1,4 @@
-package com.jayqqaa12.j2cache.core;
+package com.jayqqaa12.j2cache;
 
 import com.jayqqaa12.j2cache.util.CacheException;
 
