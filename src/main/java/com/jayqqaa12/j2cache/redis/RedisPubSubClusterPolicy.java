@@ -1,7 +1,7 @@
 package com.jayqqaa12.j2cache.redis;
 
+import com.jayqqaa12.j2cache.ClusterPolicy;
 import com.jayqqaa12.j2cache.util.Command;
-import net.oschina.j2cache.ClusterPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;

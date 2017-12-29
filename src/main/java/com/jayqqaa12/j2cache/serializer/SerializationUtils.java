@@ -13,9 +13,6 @@ public class SerializationUtils {
     private final static Logger log = LoggerFactory.getLogger(SerializationUtils.class);
     private static CacheSerializer serializer;
 
-    public static void main(String[] args) throws IOException {
-
-    }
 
     static {
         String ser = "json";
@@ -39,12 +36,22 @@ public class SerializationUtils {
         log.info("Using SerializerClass -> [" + serializer.name() + ":" + serializer.getClass().getName() + ']');
     }
 
-    public static byte[] serialize(Object obj) throws IOException {
-        return serializer.serialize(obj);
+    public static byte[] serialize(Object obj) {
+        try {
+            return serializer.serialize(obj);
+        } catch (IOException e) {
+            log.info("serializer fail {}",e);
+            return null;
+        }
     }
 
-    public static Serializable deserialize(byte[] bytes) throws IOException {
-        return (Serializable) serializer.deserialize(bytes);
+    public static Serializable deserialize(byte[] bytes)  {
+        try {
+            return (Serializable) serializer.deserialize(bytes);
+        } catch (IOException e) {
+            log.info("serializer fail {}",e);
+            return null;
+        }
     }
 
 }

@@ -9,7 +9,7 @@ public abstract class AbstractRedisLock implements ILock {
 
     protected abstract void expire(String key, int expire);
 
-    protected abstract String get(String key);
+    protected abstract String  get(String key);
 
     protected abstract String getSet(String key, String newVal);
 

@@ -1,42 +1,28 @@
 package com.jayqqaa12.j2cache;
 
+import com.jayqqaa12.j2cache.redis.RedisCacheProvider;
 import com.jayqqaa12.j2cache.redis.lock.JedisLock;
-import com.jayqqaa12.j2cache.redis.lock.JedisRateLimiter;
-import com.jayqqaa12.j2cache.redis.RedisConnConfig;
-import redis.clients.jedis.Jedis;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by 12 on 2017/7/14.
  * <p>
- * FIXME 支持集群
  */
 public class LockKit {
 
 
-    LockKit() {
-        CacheManager.init();
+    //FIXME
+//    public String isLimit(int limit, int timeout) {
+//        return JedisRateLimiter.acquireTokenFromBucket(cache, limit, timeout);
+//    }
 
-    }
-
-
-    public String isLimit(int limit, int timeout) {
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            return JedisRateLimiter.acquireTokenFromBucket(cache, limit, timeout);
-        }
-    }
-
+    
     public boolean isLock(String key, int lockExpire) {
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            return new JedisLock(cache).tryLock(key, lockExpire);
-        }
+        return new JedisLock(RedisCacheProvider.getClient()).tryLock(key, lockExpire);
     }
-
     public void unlock(String key) {
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            new JedisLock(cache).unlock(key);
-        }
+        new JedisLock(RedisCacheProvider.getClient()).unlock(key);
     }
 
 

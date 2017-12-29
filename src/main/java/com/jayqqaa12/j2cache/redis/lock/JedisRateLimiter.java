@@ -15,8 +15,7 @@ public class JedisRateLimiter {
     private static final String BUCKET_COUNT = "BUCKET_COUNT";
     private static final String BUCKET_MONITOR = "BUCKET_MONITOR";
 
-    public static String acquireTokenFromBucket(
-            Jedis jedis, int limit, long timeout) {
+    public static String acquireTokenFromBucket(Jedis jedis, int limit, long timeout) {
         String identifier = UUID.randomUUID().toString();
         long now = System.currentTimeMillis();
         Transaction transaction = jedis.multi();

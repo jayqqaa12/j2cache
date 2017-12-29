@@ -23,6 +23,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -43,7 +44,7 @@ public class EhCacheProvider implements CacheProvider {
         if (name == null)
             name = CacheConstans.EHCACHE_DEFAULT_REGION;
         if (caches.size() > 100) {
-            throw new CacheException("can't build more of greater than 500  check you code can't use diff region ");
+            throw new CacheException("can't build more of greater than 100  check you code can't use diff region ");
         }
 
         EhCache ehcache = caches.get(name);
@@ -73,7 +74,7 @@ public class EhCacheProvider implements CacheProvider {
     }
 
 
-    public void start() throws CacheException {
+    public void start(Properties properties) throws CacheException {
         if (manager != null) {
             log.warn("Attempt to restart an already started EhCacheProvider.");
             return;

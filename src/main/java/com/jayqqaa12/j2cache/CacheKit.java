@@ -1,12 +1,8 @@
 package com.jayqqaa12.j2cache;
 
-import com.jayqqaa12.j2cache.redis.RedisConnConfig;
 import com.jayqqaa12.j2cache.util.CacheException;
-import com.jayqqaa12.j2cache.util.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.util.SafeEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +12,9 @@ import static com.jayqqaa12.j2cache.CacheConstans.LEVEL1;
 import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
 
 
-class CacheKit {
+public  class CacheKit {
     private final static Logger log = LoggerFactory.getLogger(CacheKit.class);
 
-    CacheKit() {
-        CacheManager.init();
-    }
 
     /**
      * 从缓存中取数据,先从1级取，再从2级取
@@ -331,12 +324,13 @@ class CacheKit {
      */
     public void sendEvictCmd(String region, Object key) {
 
-        Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
-        try (Jedis jedis = RedisConnConfig.getPool().getResource()) {
-            jedis.publish(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL), cmd.toBuffers());
-        } catch (Exception e) {
-            log.error("Unable to delete of,region=" + region + ",key=" + key, e);
-        }
+        //FIXME 
+//        Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
+//        try (Jedis jedis = RedisConnConfig.getPool().getResource()) {
+//            jedis.publish(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL), cmd.toBuffers());
+//        } catch (Exception e) {
+//            log.error("Unable to delete of,region=" + region + ",key=" + key, e);
+//        }
 
     }
 }

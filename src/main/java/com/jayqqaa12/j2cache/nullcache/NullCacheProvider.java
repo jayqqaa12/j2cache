@@ -4,6 +4,8 @@ import com.jayqqaa12.j2cache.Cache;
 import com.jayqqaa12.j2cache.CacheProvider;
 import com.jayqqaa12.j2cache.util.CacheException;
 
+import java.util.Properties;
+
 
 public class NullCacheProvider implements CacheProvider {
 
@@ -20,10 +22,11 @@ public class NullCacheProvider implements CacheProvider {
         return cache;
     }
 
-
     @Override
-    public void start( ) throws CacheException {
+    public void start(Properties props) throws CacheException {
+        
     }
+
 
     @Override
     public void stop() {

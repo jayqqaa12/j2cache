@@ -5,8 +5,6 @@ import com.jayqqaa12.j2cache.serializer.SerializationUtils;
 import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class RedisCache implements Cache  {
+public class RedisCache implements Cache {
     private final static Logger log = LoggerFactory.getLogger(RedisCache.class);
+    private final String namespace;
+    private final RedisClient reidsClient;
 
-
+    public RedisCache(String namespace, RedisClient redisClient) {
+        this.namespace = namespace;
+        this.reidsClient = redisClient;
+    }
 
 
     protected byte[] getHashKeyBytes(Object key) throws IOException {
@@ -28,16 +31,14 @@ public class RedisCache implements Cache  {
 
     /**
      * 直接用toString
+     *
      * @param key
      * @return
      * @throws IOException
      */
-    protected byte[] getKeyBytes(Object key) throws IOException {
+    protected byte[] getKeyBytes(Object key) {
         return key.toString().getBytes();
     }
-
-
-
 
 
     /**
@@ -51,18 +52,11 @@ public class RedisCache implements Cache  {
 
         List<Object> keys = new ArrayList<>();
         if (region == null) return keys;
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            Set<byte[]> bytes = cache.hkeys(region.getBytes());
-            bytes.forEach((b) -> {
-                try {
-                    keys.add(SerializationUtils.deserialize(b));
-                } catch (IOException e) {
-                    throw new CacheException(e);
-                }
-            });
-        } catch (Exception e) {
-            log.error("Error occured when get data from redis2 of", e);
-        }
+        Set<byte[]> bytes = reidsClient.get().hkeys(region.getBytes());
+        bytes.forEach((b) -> {
+            keys.add(SerializationUtils.deserialize(b));
+        });
+
         return keys;
     }
 
@@ -83,8 +77,8 @@ public class RedisCache implements Cache  {
             return get(key);
         }
         Object obj = null;
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            byte[] b = cache.hget(region.getBytes(), getHashKeyBytes(key));
+        try {
+            byte[] b = reidsClient.get().hget(region.getBytes(), getHashKeyBytes(key));
             if (b != null)
                 obj = SerializationUtils.deserialize(b);
         } catch (Exception e) {
@@ -99,8 +93,8 @@ public class RedisCache implements Cache  {
 
     public Object get(Object key) throws CacheException {
         Object obj = null;
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            byte[] b = cache.get(getKeyBytes(key));
+        try {
+            byte[] b = reidsClient.get().get(getKeyBytes(key));
             if (b != null)
                 obj = SerializationUtils.deserialize(b);
         } catch (Exception e) {
@@ -135,8 +129,8 @@ public class RedisCache implements Cache  {
         } else if (region != null && seconds > 0) {
             set(appendHashNameSpace(region, key), seconds, value);
         } else {
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                cache.hset(region.getBytes(), getHashKeyBytes(key), SerializationUtils.serialize(value));
+            try {
+                reidsClient.get().hset(region.getBytes(), getHashKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -157,25 +151,27 @@ public class RedisCache implements Cache  {
 
     @Override
     public void batchSet(String region, Map<?, ?> data, int seconds) throws CacheException {
-        if (data == null || data.isEmpty())
-            return;
-        else if (region == null) {
-            bastchSet(data, seconds);
-        } else {
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                Pipeline p = cache.pipelined();
-                for (Object k : data.keySet()) {
-                    if (k == null) continue;
-                    Object v = data.get(k);
-                    if (v == null) remove(region, k);
-                    p.hset(region.getBytes(), getHashKeyBytes(k), SerializationUtils.serialize(v));
-                }
 
-                p.sync();
-            } catch (Exception e) {
-                throw new CacheException(e);
-            }
-        }
+        //FIXME 
+//        if (data == null || data.isEmpty())
+//            return;
+//        else if (region == null) {
+//            bastchSet(data, seconds);
+//        } else {
+//            try  {
+//                Pipeline p =  reidsClient.get().pipelined();
+//                for (Object k : data.keySet()) {
+//                    if (k == null) continue;
+//                    Object v = data.get(k);
+//                    if (v == null) remove(region, k);
+//                    p.hset(region.getBytes(), getHashKeyBytes(k), SerializationUtils.serialize(v));
+//                }
+//
+//                p.sync();
+//            } catch (Exception e) {
+//                throw new CacheException(e);
+//            }
+//        }
     }
 
     @Override
@@ -183,20 +179,20 @@ public class RedisCache implements Cache  {
 
         List<T> list = new ArrayList();
         if (region == null) return list;
-
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            cache.hgetAll(region).forEach((k, v) -> {
-                Object obj = null;
-                try {
-                    obj = SerializationUtils.deserialize(v.getBytes());
-                } catch (IOException e) {
-                    throw new CacheException(e);
-                }
-                if (obj != null) list.add((T) obj);
-            });
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+//
+//        try  {
+//            reidsClient.get().hgetAll(region).forEach((k, v) -> {
+//                Object obj = null;
+//                try {
+//                    obj = SerializationUtils.deserialize(v.getBytes());
+//                } catch (IOException e) {
+//                    throw new CacheException(e);
+//                }
+//                if (obj != null) list.add((T) obj);
+//            });
+//        } catch (Exception e) {
+//            throw new CacheException(e);
+//        }
 
         return list;
     }
@@ -216,11 +212,11 @@ public class RedisCache implements Cache  {
         if (value == null)
             remove(key);
         else {
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
+            try {
                 //为缓解缓存击穿 l2 缓存时间增加一点时间
                 if (seconds > 0)
-                    cache.setex(getKeyBytes(key), (int) (seconds * 1.1), SerializationUtils.serialize(value));
-                else cache.set(getKeyBytes(key), SerializationUtils.serialize(value));
+                    reidsClient.get().setex(getKeyBytes(key), (int) (seconds * 1.1), SerializationUtils.serialize(value));
+                else reidsClient.get().set(getKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -230,23 +226,23 @@ public class RedisCache implements Cache  {
     public void bastchSet(Map<?, ?> data, int seconds) {
 
         if (data == null || data.isEmpty()) return;
-        else {
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                Pipeline p = cache.pipelined();
-                for (Object k : data.keySet()) {
-                    if (k == null) continue;
-                    Object v = data.get(k);
-                    if (v == null) remove(k);
-                    //为缓解缓存击穿 l2 缓存时间增加一点时间
-                    if (seconds > 0)
-                        p.setex(getKeyBytes(k), (int) (seconds * 1.1), SerializationUtils.serialize(v));
-                    else p.set(getKeyBytes(k), SerializationUtils.serialize(v));
-                }
-                p.sync();
-            } catch (Exception e) {
-                throw new CacheException(e);
-            }
-        }
+//        else {
+//            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
+//                Pipeline p = cache.pipelined();
+//                for (Object k : data.keySet()) {
+//                    if (k == null) continue;
+//                    Object v = data.get(k);
+//                    if (v == null) remove(k);
+//                    //为缓解缓存击穿 l2 缓存时间增加一点时间
+//                    if (seconds > 0)
+//                        p.setex(getKeyBytes(k), (int) (seconds * 1.1), SerializationUtils.serialize(v));
+//                    else p.set(getKeyBytes(k), SerializationUtils.serialize(v));
+//                }
+//                p.sync();
+//            } catch (Exception e) {
+//                throw new CacheException(e);
+//            }
+//        }
     }
 
 
@@ -263,19 +259,19 @@ public class RedisCache implements Cache  {
         } else {
             if (key instanceof List) {
                 List keys = (List) key;
-                try (Jedis cache = RedisConnConfig.getPool().getResource()) {
+                try {
                     int size = keys.size();
                     byte[][] okeys = new byte[size][];
                     for (int i = 0; i < size; i++) {
                         okeys[i] = getHashKeyBytes(keys.get(i));
                     }
-                    cache.hdel(region.getBytes(), okeys);
+                    reidsClient.get().hdel(region.getBytes(), okeys);
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
             } else {
-                try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                    cache.hdel(region.getBytes(), getHashKeyBytes(key));
+                try {
+                    reidsClient.get().hdel(region.getBytes(), getHashKeyBytes(key));
                 } catch (Exception e) {
                     throw new CacheException(e);
                 }
@@ -295,23 +291,12 @@ public class RedisCache implements Cache  {
             return;
         if (key instanceof List) {
             List keys = (List) key;
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                int size = keys.size();
-                byte[][] okeys = new byte[size][];
-                for (int i = 0; i < size; i++) {
-                    okeys[i] = getKeyBytes(key);
-                }
-                cache.del(okeys);
-            } catch (Exception e) {
-                throw new CacheException(e);
+            int size = keys.size();
+            for (int i = 0; i < size; i++) {
+                reidsClient.get().del(getKeyBytes(key));
             }
         } else {
-
-            try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-                cache.del(getKeyBytes(key));
-            } catch (Exception e) {
-                throw new CacheException(e);
-            }
+            reidsClient.get().del(getKeyBytes(key));
         }
     }
 
@@ -320,11 +305,7 @@ public class RedisCache implements Cache  {
      */
     @Override
     public void clear(String region) throws CacheException {
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            cache.del(region.getBytes());
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
+        reidsClient.get().del(region.getBytes());
     }
 
     /**
@@ -341,16 +322,7 @@ public class RedisCache implements Cache  {
             key = appendHashNameSpace(region, key);
         }
 
-        try (Jedis cache = RedisConnConfig.getPool().getResource()) {
-            return cache.expire(getKeyBytes(key), seconds);
-        } catch (Exception e) {
-            throw new CacheException(e);
-        }
-    }
-
-
-    public void destory() {
-        RedisConnConfig.getPool().destroy();
+        return reidsClient.get().expire(getKeyBytes(key), seconds);
     }
 
 

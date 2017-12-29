@@ -3,10 +3,7 @@ package com.jayqqaa12.j2cache;
 import java.io.IOException;
 import java.io.Serializable;
 
-/**
- * 缓存集群策略接口
- * @author Winter Lau(javayou@gmail.com)
- */
+ 
 public interface ClusterPolicy {
 
     /**
@@ -28,7 +25,7 @@ public interface ClusterPolicy {
     void sendClearCmd(String region);
 
     /**
-     * 断开集群连接
+     * 断开集群连接        
      */
     void disconnect();
 

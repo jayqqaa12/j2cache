@@ -8,13 +8,12 @@ import com.jayqqaa12.j2cache.serializer.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Random;
 
 /**
  * copy
- *
+ * <p>
  * 命令消息封装
  * 格式：
  * 第1个字节为命令代码，长度1 [OPT]
@@ -55,12 +54,9 @@ public class Command {
 
     public byte[] toBuffers() {
         byte[] keyBuffers = null;
-        try {
-            keyBuffers = SerializationUtils.serialize(key);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        keyBuffers = SerializationUtils.serialize(key);
+        if(keyBuffers==null)return null;
+
         int r_len = region.getBytes().length;
         int k_len = keyBuffers.length;
 

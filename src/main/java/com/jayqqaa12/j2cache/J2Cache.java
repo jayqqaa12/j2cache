@@ -8,6 +8,7 @@ import java.util.Map;
 import static com.jayqqaa12.j2cache.CacheConstans.LEVEL1;
 import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
 
+
 /**
  * 缓存使用入口
  * <p>
@@ -21,13 +22,21 @@ import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
  */
 public class J2Cache {
 
-    private static final CacheKit cache = new CacheKit();
-    private static final LockKit lock = new LockKit();
 
-    public static CacheKit cache() {
+    private final CacheKit cache = new CacheKit();
+    private final LockKit lock = new LockKit();
+
+    public J2Cache() {
+        CacheManager.init();
+    }
+
+    public CacheKit cache() {
         return cache;
     }
-    public static LockKit lock() {return lock;}
+
+    public LockKit lock() {
+        return lock;
+    }
 
     /**
      * 获取数据
@@ -37,8 +46,8 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static <T> T get(Object key, CacheDataSource data) throws CacheException {
-        return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME,false);
+    public <T> T get(Object key, CacheDataSource data) throws CacheException {
+        return get(CacheConstans.NUllRegion, key, data, CacheConstans.DEFAULT_TIME, false);
     }
 
 
@@ -52,12 +61,12 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static <T> T get(String region, Object key, CacheDataSource data) throws CacheException {
-        return get(region, key, data, CacheConstans.DEFAULT_TIME,false);
+    public <T> T get(String region, Object key, CacheDataSource data) throws CacheException {
+        return get(region, key, data, CacheConstans.DEFAULT_TIME, false);
     }
 
 
-    public static <T> T get1(String region, Object key, CacheDataSource data, int sec) throws CacheException {
+    public <T> T get1(String region, Object key, CacheDataSource data, int sec) throws CacheException {
 
         Object obj = get1(region, key);
         if (obj == null) {
@@ -67,13 +76,13 @@ public class J2Cache {
         return (T) obj;
     }
 
-    public static <T> T get(Object key, CacheDataSource data, int sec) throws CacheException {
-        return get(CacheConstans.NUllRegion, key, data, sec,false);
+    public <T> T get(Object key, CacheDataSource data, int sec) throws CacheException {
+        return get(CacheConstans.NUllRegion, key, data, sec, false);
     }
 
 
-    public static <T> T get(String  region,Object key, CacheDataSource data, int sec) throws CacheException {
-        return get(region, key, data, sec,false);
+    public <T> T get(String region, Object key, CacheDataSource data, int sec) throws CacheException {
+        return get(region, key, data, sec, false);
     }
 
     /**
@@ -89,7 +98,7 @@ public class J2Cache {
      * @return
      * @throws CacheException
      */
-    public static <T> T get(String region, Object key, CacheDataSource data, int sec,boolean lock) throws CacheException {
+    public <T> T get(String region, Object key, CacheDataSource data, int sec, boolean lock) throws CacheException {
         try {
             Object obj = cache().get(region, key);
             if (obj == null) {
@@ -104,7 +113,7 @@ public class J2Cache {
         }
     }
 
-    public static void set(Object key, Object value, int seconds) {
+    public void set(Object key, Object value, int seconds) {
         cache().set(CacheConstans.NUllRegion, key, value, seconds, true);
     }
 
@@ -119,7 +128,7 @@ public class J2Cache {
      * @param key
      * @param value
      */
-    public static void set(String region, Object key, Object value, int seconds) {
+    public void set(String region, Object key, Object value, int seconds) {
         cache().set(region, key, value, seconds, true);
     }
 
@@ -133,7 +142,7 @@ public class J2Cache {
      * @param key
      * @param value
      */
-    public static void setn(String region, Object key, Object value, int seconds) {
+    public void setn(String region, Object key, Object value, int seconds) {
         cache().set(region, key, value, seconds, false);
     }
 
@@ -148,11 +157,11 @@ public class J2Cache {
      * @param value
      * @param seconds
      */
-    public static void set1(String region, Object key, Object value, int seconds) {
+    public void set1(String region, Object key, Object value, int seconds) {
         cache().set(LEVEL1, region, key, value, seconds, true);
     }
 
-    public static void set1n(String region, Object key, Object value, int seconds) {
+    public void set1n(String region, Object key, Object value, int seconds) {
         cache().set(LEVEL1, region, key, value, seconds, false);
     }
 
@@ -165,98 +174,98 @@ public class J2Cache {
      * @param key
      * @return
      */
-    public static <T> T get(String region, Object key) {
+    public <T> T get(String region, Object key) {
         return (T) cache().get(region, key);
     }
 
 
-    public static <T> T get(Object key) {
+    public <T> T get(Object key) {
         return (T) cache().get(key);
     }
 
-    public static <T> T get1(String region, Object key) {
+    public <T> T get1(String region, Object key) {
         return (T) cache().get(LEVEL1, region, key);
     }
 
 
-    public static <T> T get1(Object key) {
+    public <T> T get1(Object key) {
         return (T) cache().get(LEVEL1, key);
     }
 
-    public static <T> T get2(String region, Object key) {
+    public <T> T get2(String region, Object key) {
         return (T) cache().get(LEVEL2, region, key);
     }
 
-    public static <T> T get2(Object key) {
+    public <T> T get2(Object key) {
         return (T) cache().get(LEVEL2, key);
     }
 
 
-    public static void set(Object key, Object value) {
+    public void set(Object key, Object value) {
         cache().set(key, value, true);
     }
 
 
-    public static void set(String region, Object key, Object value) {
+    public void set(String region, Object key, Object value) {
         cache().set(region, key, value, true);
     }
 
 
-    public static void batchSet(Map<?, ?> data) {
+    public void batchSet(Map<?, ?> data) {
 
         cache().batchSet(LEVEL1, data);
         cache().batchSet(LEVEL2, data);
     }
 
-    public static void batchSet(String region, Map<?, ?> data) {
+    public void batchSet(String region, Map<?, ?> data) {
         cache().batchSet(LEVEL1, region, data);
         cache().batchSet(LEVEL2, region, data);
     }
 
-    public static void batchSet(String region, Map<?, ?> data, int seconds) {
+    public void batchSet(String region, Map<?, ?> data, int seconds) {
         cache().batchSet(LEVEL1, region, data, seconds);
         cache().batchSet(LEVEL2, region, data, seconds);
     }
 
-    public static void batchSet2(Map<?, ?> data) {
+    public void batchSet2(Map<?, ?> data) {
         cache().batchSet(LEVEL2, data);
     }
 
-    public static void batchSet2(String region, Map<?, ?> data) {
+    public void batchSet2(String region, Map<?, ?> data) {
         cache().batchSet(LEVEL2, region, data);
     }
 
 
-    public static void batchSet2(String region, Map<?, ?> data, int seconds) {
+    public void batchSet2(String region, Map<?, ?> data, int seconds) {
         cache().batchSet(LEVEL2, region, data, seconds);
     }
 
 
-    public static <T> List<T> batchGet1(String region) {
+    public <T> List<T> batchGet1(String region) {
 
         return cache().batchGet(LEVEL1, region);
     }
 
-    public static <T> List<T> batchGet2(String region) {
+    public <T> List<T> batchGet2(String region) {
         return cache().batchGet(LEVEL2, region);
     }
 
 
-    public static void setn(Object key, Object value) {
+    public void setn(Object key, Object value) {
         cache().set(key, value, false);
     }
 
 
-    public static void setn(String region, Object key, Object value) {
+    public void setn(String region, Object key, Object value) {
         cache().set(region, key, value, false);
     }
 
 
-    public static void set1(Object key, Object value) {
+    public void set1(Object key, Object value) {
         cache().set(key, value, true);
     }
 
-    public static void set1n(Object key, Object value) {
+    public void set1n(Object key, Object value) {
 
         cache().set(key, value, false);
     }
@@ -271,11 +280,11 @@ public class J2Cache {
      * @param key
      * @param value
      */
-    public static void set1(String region, Object key, Object value) {
+    public void set1(String region, Object key, Object value) {
         cache().set(LEVEL1, region, key, value, true);
     }
 
-    public static void set1n(String region, Object key, Object value) {
+    public void set1n(String region, Object key, Object value) {
         cache().set(LEVEL1, region, key, value, false);
     }
 
@@ -289,21 +298,21 @@ public class J2Cache {
      * @param key
      * @param value
      */
-    public static void set2(String region, Object key, Object value) {
+    public void set2(String region, Object key, Object value) {
         cache().set(LEVEL2, region, key, value, true);
     }
 
-    public static void set2n(String region, Object key, Object value) {
+    public void set2n(String region, Object key, Object value) {
         cache().set(LEVEL2, region, key, value, false);
     }
 
 
-    public static void set2(String region, Object key, Object value, int sec) {
+    public void set2(String region, Object key, Object value, int sec) {
         cache().set(LEVEL2, region, key, value, sec, true);
     }
 
 
-    public static void set2n(Object key, Object value) {
+    public void set2n(Object key, Object value) {
         cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, false);
     }
 
@@ -315,35 +324,35 @@ public class J2Cache {
      * @param key
      * @param value
      */
-    public static void set2(Object key, Object value, int seconds) {
+    public void set2(Object key, Object value, int seconds) {
         cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, seconds, true);
     }
 
-    public static void set2n(Object key, Object value, int seconds) {
+    public void set2n(Object key, Object value, int seconds) {
         cache().set(LEVEL2, CacheConstans.NUllRegion, key, value, seconds, false);
     }
 
-    public static <T> List<T> keys1(String region) {
+    public <T> List<T> keys1(String region) {
         return cache().keys(LEVEL1, region);
     }
 
-    public static <T> List<T> keys2(String region) {
+    public <T> List<T> keys2(String region) {
         return cache().keys(LEVEL2, region);
     }
 
-    public static void remove(String region, Object key) {
+    public void remove(String region, Object key) {
         cache().remove(region, key);
     }
 
-    public static void remove(Object key) {
+    public void remove(Object key) {
         cache().remove(key);
     }
 
-    public static void remove(String region, List<Object> keys) {
+    public void remove(String region, List<Object> keys) {
         cache().remove(region, keys);
     }
 
-    public static void remove(List<Object> keys) {
+    public void remove(List<Object> keys) {
         cache().remove(keys);
     }
 
@@ -353,7 +362,7 @@ public class J2Cache {
      *
      * @param region
      */
-    public static void clear(String region) {
+    public void clear(String region) {
         cache().clear(region);
     }
 
@@ -361,7 +370,7 @@ public class J2Cache {
     /**
      * 释放缓存资源 关闭jvm的时候使用！！
      */
-    public static void close() {
+    public void close() {
         cache().close();
     }
 }

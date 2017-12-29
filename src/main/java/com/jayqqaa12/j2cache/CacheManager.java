@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * L1,L2缓存管理器，调用缓存实现类
@@ -21,19 +22,17 @@ public class CacheManager {
     public static CacheProvider l1Provider;
     public static CacheProvider l2Provider;
 
-    static {
-        init();
-    }
-
+ 
     protected synchronized static void init() {
         try {
             if (l1Provider != null && l2Provider != null) return;
 
+            //FIXME
             l1Provider = getProviderInstance(CacheConstans.L1_PROVIDER);
-            l1Provider.start();
+            l1Provider.start(new Properties());
             log.info("Using L1 CacheProvider : " + l1Provider.getClass().getName());
             l2Provider = getProviderInstance(CacheConstans.L2_PROVIDER);
-            l2Provider.start();
+            l2Provider.start(new Properties());
             log.info("Using L2 CacheProvider : " + l2Provider.getClass().getName());
 
         } catch (Exception e) {

@@ -2,10 +2,7 @@ package com.jayqqaa12.j2cache.redis.queue;
 
 public interface DelayQueue<T> {
 
-    /**
-     * @return 消息队列名
-     */
-    String getName();
+
 
     /**
      * @return 当消息已经被取出，等待确认的时间。等待确认时间过去后将被自动删除
