@@ -1,18 +1,30 @@
+///**
+// * Copyright (c) 2015-2017, Winter Lau (javayou@gmail.com).
+// * <p>
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// * <p>
+// * http://www.apache.org/licenses/LICENSE-2.0
+// * <p>
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
 //package net.oschina.j2cache;
 //
-//import com.jayqqaa12.j2cache.CacheProvider;
-//import com.jayqqaa12.j2cache.util.CacheException;
+//import net.oschina.j2cache.redis.RedisCache;
 //import net.oschina.j2cache.redis.RedisCacheProvider;
 //import net.oschina.j2cache.redis.RedisClient;
+//import net.sf.ehcache.CacheException;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //
 //import java.io.IOException;
 //import java.io.Serializable;
-//import java.util.Enumeration;
-//import java.util.List;
-//import java.util.Properties;
-//import java.util.Set;
+//import java.util.*;
 //
 ///**
 // * 两级的缓存管理器
@@ -28,12 +40,15 @@
 //	private static CacheProvider l1_provider;
 //	private static CacheProvider l2_provider;
 //
+//	private static CacheExpiredListener listener;
 //
 //
 //	/**
 //	 * Initialize Cache Provider
+//	 * @param listener cache listener
 //	 */
-//	public static void initCacheProvider(Properties props ){
+//	public static void initCacheProvider(Properties props, CacheExpiredListener listener){
+//		CacheProviderHolder.listener = listener;
 //		try{
 //			CacheProviderHolder.l1_provider = getProviderInstance(props.getProperty("j2cache.L1.provider_class"));
 //			CacheProviderHolder.l1_provider.start(getProviderProperties(props, CacheProviderHolder.l1_provider));
@@ -42,7 +57,6 @@
 //			CacheProviderHolder.l2_provider = getProviderInstance(props.getProperty("j2cache.L2.provider_class"));
 //			CacheProviderHolder.l2_provider.start(getProviderProperties(props, CacheProviderHolder.l2_provider));
 //			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
-//
 //		}catch(Exception e){
 //			throw new CacheException("Failed to initialize cache manager", e);
 //		}
@@ -57,12 +71,9 @@
 //	}
 //
 //	private final static CacheProvider getProviderInstance(String cacheIdent) throws Exception {
-////		if("ehcache".equalsIgnoreCase(cacheIdent))
-////			return new EhCacheProvider();
 //		if("redis".equalsIgnoreCase(cacheIdent))
 //			return new RedisCacheProvider();
-////		if("none".equalsIgnoreCase(cacheIdent))
-////			return new NullCacheProvider();
+//
 //		return (CacheProvider)Class.forName(cacheIdent).newInstance();
 //	}
 //
@@ -78,14 +89,26 @@
 //		return new_props;
 //	}
 //
-//	private final static Cache _GetCache(int level, String cache_name, boolean autoCreate) {
-//		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, autoCreate);
+//	private final static Cache getCache(int level, String cache_name) {
+//		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, listener);
+//	}
+//
+//	private final static Cache getCache(int level, String cache_name, long timeToLiveInSeconds) {
+//		if(timeToLiveInSeconds <= 0)
+//			return getCache(level, cache_name);
+//		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, timeToLiveInSeconds, listener);
+//	}
+//
+//	private final static RedisCache getRedisCache(String cache_name) {
+//		return (RedisCache)l2_provider.buildCache(cache_name, listener);
 //	}
 //
 //	public final static void shutdown() {
 //		l1_provider.stop();
 //		l2_provider.stop();
 //	}
+//
+//
 //
 //	/**
 //	 * 获取缓存中的数据
@@ -94,10 +117,10 @@
 //	 * @param key Cache key
 //	 * @return Cache object
 //	 */
-//	public final static Serializable get(int level, String name, Serializable key) throws IOException {
+//	public final static Serializable get(int level, String name, String key) throws IOException {
 //		//System.out.println("GET1 => " + name+":"+key);
 //		if(name!=null && key != null) {
-//            Cache cache = _GetCache(level, name, false);
+//            Cache cache = getCache(level, name);
 //            if (cache != null)
 //                return cache.get(key);
 //        }
@@ -105,48 +128,74 @@
 //	}
 //
 //	/**
+//	 * 批量获取缓存对象
+//	 * @param level
+//	 * @param region
+//	 * @param keys
+//	 * @return
+//	 */
+//	public final static Map<String, Serializable> getAll(int level, String region, Set<String> keys) throws IOException {
+//		Cache cache = getCache(level, region);
+//		return (cache!=null)?cache.getAll(keys):null;
+//	}
+//
+//	/**
+//	 * 判断某个缓存键是否存在
+//	 * @param level
+//	 * @param region
+//	 * @param key
+//	 * @return
+//	 */
+//	public final static boolean exists(int level, String region, String key) throws IOException {
+//		Cache cache = getCache(level, region);
+//		return (cache!=null)?cache.exists(key):false;
+//	}
+//
+//	/**
 //	 * 写入缓存
 //	 * @param level Cache Level: L1 and L2
-//	 * @param name Cache region name
+//	 * @param region Cache region name
 //	 * @param key Cache key
 //	 * @param value Cache value
 //	 */
-//	public final static void set(int level, String name, Serializable key, Serializable value) throws IOException {
-//		//System.out.println("SET => " + name+":"+key+"="+value);
-//		if(name!=null && key != null && value!=null) {
-//            Cache cache =_GetCache(level, name, true);
-//            if (cache != null)
-//                cache.put(key,value);
-//        }
+//	public final static void set(int level, String region, String key, Serializable value) throws IOException {
+//		Cache cache = getCache(level, region);
+//		cache.put(key, value);
+//	}
+//
+//	public final static void set(int level, String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
+//		Cache cache = getCache(level, region, timeToLiveInSeconds);
+//		cache.put(key, value);
+//	}
+//
+//	/**
+//	 * 批量插入数据
+//	 * @param level
+//	 * @param region
+//	 * @param elements
+//	 */
+//	public final static void setAll(int level, String region, Map<String, Serializable> elements) throws IOException {
+//		Cache cache = getCache(level, region);
+//		cache.putAll(elements);
+//	}
+//
+//	public final static void setAll(int level, String region, Map<String, Serializable> elements, long timeToLiveInSeconds) throws IOException {
+//		Cache cache = getCache(level, region, timeToLiveInSeconds);
+//		cache.putAll(elements);
 //	}
 //
 //	/**
 //	 * 清除缓存中的某个数据
 //	 * @param level Cache Level: L1 and L2
 //	 * @param name Cache region name
-//	 * @param key Cache key
+//	 * @param keys Cache key
 //	 */
-//	public final static void evict(int level, String name, Serializable key) throws IOException {
-//		//batchEvict(level, name, java.util.Arrays.asList(key));
-//		if(name!=null && key != null) {
-//            Cache cache =_GetCache(level, name, false);
-//            if (cache != null)
-//                cache.evict(key);
-//        }
-//	}
-//
-//	/**
-//	 * 批量删除缓存中的一些数据
-//	 * @param level Cache Level： L1 and L2
-//	 * @param name Cache region name
-//	 * @param keys Cache keys
-//	 */
-//	public final static void evicts(int level, String name, List<Serializable> keys) throws IOException {
-//		if(name!=null && keys != null && keys.size() > 0) {
-//            Cache cache =_GetCache(level, name, false);
-//            if (cache != null)
-//                cache.evicts(keys);
-//        }
+//	public final static void evict(int level, String name, String...keys) throws IOException {
+//		if(name!=null && keys != null && keys.length > 0) {
+//			Cache cache = getCache(level, name);
+//			if (cache != null)
+//				cache.evict(keys);
+//		}
 //	}
 //
 //	/**
@@ -155,7 +204,7 @@
 //	 * @param name cache region name
 //	 */
 //	public final static void clear(int level, String name) throws IOException {
-//        Cache cache =_GetCache(level, name, false);
+//        Cache cache = getCache(level, name);
 //        if(cache != null)
 //        	cache.clear();
 //	}
@@ -166,8 +215,8 @@
 //	 * @param name cache region name
 //	 * @return Key List
 //	 */
-//	public final static Set<Serializable> keys(int level, String name) throws IOException {
-//        Cache cache =_GetCache(level, name, false);
+//	public final static Collection<String> keys(int level, String name) throws IOException {
+//        Cache cache = getCache(level, name);
 //		return (cache!=null)?cache.keys():null;
 //	}
 //

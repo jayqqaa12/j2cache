@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2015-2017, Winter Lau (javayou@gmail.com).
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jayqqaa12.j2cache.redis;
 
 import com.jayqqaa12.j2cache.ClusterPolicy;
@@ -5,49 +20,87 @@ import com.jayqqaa12.j2cache.util.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import java.io.Serializable;
+import java.io.IOException;
 
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
  *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements ClusterPolicy {
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
-    private RedisClient redis;
+    private  RedisClient redis;
     private String channel;
+    private byte[] channelBytes;
 
     public RedisPubSubClusterPolicy(String channel, RedisClient redis){
         this.redis = redis;
         this.channel = channel;
+        this.channelBytes = channel.getBytes();
     }
 
     /**
-     * 使用 Redis 的发布订阅通道
+     * 加入 Redis 的发布订阅频道
      */
     @Override
-    public void connect() {
+    public void connect( ) {
         long ct = System.currentTimeMillis();
-        new Thread(()-> redis.subscribe(this, channel)).start();
+        this.redis.publish(channelBytes, Command.join().jsonBytes());   //Join Cluster
+        new Thread(()-> {
+            //当 Redis 重启会导致订阅线程断开连接，需要进行重连
+            while(true) {
+                try {
+                    redis.subscribe(this, channelBytes);
+                    log.info("Disconnect to redis channel:" + channel);
+                    break;
+                } catch (JedisConnectionException e) {
+                    log.error("Failed connect to redis, reconnect it.", e);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie){
+                        break;
+                    }
+                }
+            }
+        }, "RedisSubscribeThread").start();
         log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+    }
+
+
+
+    /**
+     * 退出 Redis 发布订阅频道
+     */
+    @Override
+    public void disconnect() {
+        redis.publish(channelBytes, Command.quit().jsonBytes()); //Quit Cluster
+        this.unsubscribe();
+    }
+
+
+    @Override
+    public void clear(String region) throws IOException {
+
     }
 
     /**
      * 发送清除缓存的广播命令
      *
      * @param region : Cache region name
-     * @param key    : cache key
+     * @param keys    : cache key
      */
     @Override
-    public void sendEvictCmd(String region, Serializable key) {
+    public void sendEvictCmd(String region, Object... keys) {
         // 发送广播
-        Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
+        Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
         try {
-            redis.publish(channel.getBytes(), cmd.toBuffers());
+            redis.publish(channelBytes, cmd.jsonBytes());
         } catch (Exception e) {
-            log.error("Failed to delete cache,region=" + region + ",key=" + key, e);
+            log.error("Failed to delete cache,region=" + region + ",key=" + keys, e);
         }
     }
 
@@ -61,31 +114,38 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
         // 发送广播
         Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
         try {
-            redis.publish(channel.getBytes(), cmd.toBuffers());
+            redis.publish(channelBytes, cmd.jsonBytes());
         } catch (Exception e) {
             log.error("Failed to clear cache,region=" + region, e);
         }
     }
 
+    /**
+     * 当接收到订阅频道获得的消息时触发此方法
+     * @param channel 频道名称
+     * @param message 消息体
+     */
     public void onMessage(byte[] channel, byte[] message) {
-        // 无效消息
-        if (message != null && message.length <= 0)
-            return;
-
         try {
             Command cmd = Command.parse(message);
 
-            if (cmd == null || cmd.isLocalCommand())
+            if (cmd == null || cmd.isLocal())
                 return;
 
             switch (cmd.getOperator()) {
-                case Command.OPT_DELETE_KEY:
-                    this.evict(cmd.getRegion(), (Serializable) cmd.getKey());
-                    log.debug("Received cache evict message, region=" + cmd.getRegion() + ",key=" + cmd.getKey());
+                case Command.OPT_JOIN:
+                    log.info("Node-"+cmd.getSrc()+" joined to " + this.channel);
+                    break;
+                case Command.OPT_EVICT_KEY:
+                    this.evict(cmd.getRegion(), cmd.getKeys());
+                    log.debug("Received cache evict message, region=" + cmd.getRegion() + ",key=" + cmd.getKeys());
                     break;
                 case Command.OPT_CLEAR_KEY:
                     this.clear(cmd.getRegion());
                     log.debug("Received cache clear message, region=" + cmd.getRegion());
+                    break;
+                case Command.OPT_QUIT:
+                    log.info("Node-"+cmd.getSrc()+" quit to " + this.channel);
                     break;
                 default:
                     log.warn("Unknown message type = " + cmd.getOperator());
@@ -95,8 +155,4 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
         }
     }
 
-    @Override
-    public void disconnect() {
-        this.unsubscribe();
-    }
 }

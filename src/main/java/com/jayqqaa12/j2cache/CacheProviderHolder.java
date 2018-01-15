@@ -3,6 +3,7 @@ package com.jayqqaa12.j2cache;
 import com.jayqqaa12.j2cache.ehcache.EhCacheProvider;
 import com.jayqqaa12.j2cache.nullcache.NullCacheProvider;
 import com.jayqqaa12.j2cache.redis.RedisCacheProvider;
+import com.jayqqaa12.j2cache.redis.RedisClient;
 import com.jayqqaa12.j2cache.util.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,30 +16,42 @@ import java.util.Properties;
 /**
  * L1,L2缓存管理器，调用缓存实现类
  */
-public class CacheManager {
+public class CacheProviderHolder {
 
-    private final static Logger log = LoggerFactory.getLogger(CacheManager.class);
+    private final static Logger log = LoggerFactory.getLogger(CacheProviderHolder.class);
 
-    public static CacheProvider l1Provider;
-    public static CacheProvider l2Provider;
+    private static CacheProvider l1Provider;
+    private static CacheProvider l2Provider;
 
- 
-    protected synchronized static void init() {
+
+
+
+
+
+    protected synchronized static void init(Properties props) {
         try {
             if (l1Provider != null && l2Provider != null) return;
 
-            //FIXME
-            l1Provider = getProviderInstance(CacheConstans.L1_PROVIDER);
-            l1Provider.start(new Properties());
+            l1Provider = getProviderInstance(props.getProperty("cache.L1.provider"));
+            l1Provider.start(props);
             log.info("Using L1 CacheProvider : " + l1Provider.getClass().getName());
-            l2Provider = getProviderInstance(CacheConstans.L2_PROVIDER);
-            l2Provider.start(new Properties());
+            l2Provider = getProviderInstance(props.getProperty("cache.L2.provider"));
+            l2Provider.start(props);
             log.info("Using L2 CacheProvider : " + l2Provider.getClass().getName());
 
         } catch (Exception e) {
             throw new CacheException("Unabled to initialize of providers", e);
         }
     }
+
+
+    public static RedisClient getRedisClient() {
+        if (l2Provider instanceof RedisCacheProvider) {
+            return ((RedisCacheProvider) l2Provider).getClient();
+        }
+        throw new CacheException("level 2 is not redis cache provider");
+    }
+
 
     private final static CacheProvider getProviderInstance(String value) throws Exception {
         if (CacheConstans.EHCACHE.equalsIgnoreCase(value)) {
@@ -53,14 +66,13 @@ public class CacheManager {
 
 
     private final static Cache getCache(int level, String cacheName) {
-        return getCache(level,cacheName,true);
+        return getCache(level, cacheName, true);
     }
 
 
-    private final static Cache getCache(int level, String cacheName,boolean isCreate) {
-        return ((level == 1) ? l1Provider : l2Provider).buildCache(cacheName,isCreate);
+    private final static Cache getCache(int level, String cacheName, boolean isCreate) {
+        return ((level == 1) ? l1Provider : l2Provider).buildCache(cacheName, isCreate);
     }
-
 
 
     public final static void shutdown(int level) {
@@ -128,7 +140,7 @@ public class CacheManager {
      */
     public final static void remove(int level, String region, Object key) {
         if (key != null) {
-            Cache cache = getCache(level, region,false);
+            Cache cache = getCache(level, region, false);
             if (cache != null)
                 cache.remove(region, key);
         }
@@ -143,18 +155,18 @@ public class CacheManager {
      */
     public final static void batchRemove(int level, String region, List keys) {
         if (keys != null && keys.size() > 0) {
-            Cache cache = getCache(level, region,false);
+            Cache cache = getCache(level, region, false);
             if (cache != null)
                 cache.remove(region, keys);
         }
     }
 
 
-    public final static void batchSet(int level, String region, Map<?, ?> data,int seconds) {
+    public final static void batchSet(int level, String region, Map<?, ?> data, int seconds) {
         if (data != null && !data.isEmpty()) {
             Cache cache = getCache(level, region);
             if (cache != null)
-                cache.batchSet(region,data,seconds);
+                cache.batchSet(region, data, seconds);
         }
     }
 
@@ -173,20 +185,20 @@ public class CacheManager {
 
 
     public final static void clear(int level, String name) throws CacheException {
-        Cache cache = getCache(level, name,false);
+        Cache cache = getCache(level, name, false);
         if (cache != null)
             cache.clear(name);
     }
 
 
-    public static <T>  List<T>  keys(int level, String region) {
+    public static <T> List<T> keys(int level, String region) {
         Cache cache = getCache(level, region);
         if (cache != null)
             return cache.keys(region);
         return new ArrayList<>();
     }
 
-    public static <T>  List<T>  batchGet(int level, String region) {
+    public static <T> List<T> batchGet(int level, String region) {
         Cache cache = getCache(level, region);
         if (cache != null)
             return cache.batchGet(region);

@@ -1,19 +1,26 @@
 /**
- *
+ * Copyright (c) 2015-2017, Winter Lau (javayou@gmail.com).
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.jayqqaa12.j2cache.util;
 
-import com.jayqqaa12.j2cache.CacheConstans;
-import com.jayqqaa12.j2cache.serializer.SerializationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 
-import java.io.Serializable;
 import java.util.Random;
 
 /**
- * copy
- * <p>
  * 命令消息封装
  * 格式：
  * 第1个字节为命令代码，长度1 [OPT]
@@ -21,127 +28,98 @@ import java.util.Random;
  * 第4、N 为 region 值，长度为 [R_LEN]
  * 第N+1、N+2 为 key 长度，长度2 [K_LEN]
  * 第N+3、M为 key值，长度为 [K_LEN]
+ * 
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class Command {
 
-    private final static Logger log = LoggerFactory.getLogger(Command.class);
+	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
-    private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成
+	public final static byte OPT_JOIN 	   = 0x01;	//加入集群
+	public final static byte OPT_EVICT_KEY = 0x02; 	//删除缓存
+	public final static byte OPT_CLEAR_KEY = 0x03; 	//清除缓存
+	public final static byte OPT_QUIT 	   = 0x04;	//退出集群
+	
+	private int src = SRC_ID;
+	private int operator;
+	private String region;
+	private Object[] keys;
+	
+	private static int genRandomSrc() {
+		long ct = System.currentTimeMillis();
+		Random rnd_seed = new Random(ct);
+		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
+	}
 
-    public final static byte OPT_DELETE_KEY = 0x01;    //删除缓存
-    public final static byte OPT_CLEAR_KEY = 0x02;        //清除缓存
+	public Command(){}//just for json deserialize
 
-    private int src;
-    private byte operator;
-    private String region;
-    private Object key;
+	public Command(byte o, String r, Object...keys){
+		this.operator = o;
+		this.region = r;
+		this.keys = keys;
+	}
 
-    private static int genRandomSrc() {
-        long ct = System.currentTimeMillis();
-        Random random = new Random(ct);
-        return (int) (random.nextInt(10000) * 1000 + ct % 1000);
-    }
+	public static Command join() {
+		return new Command(OPT_JOIN, null);
+	}
 
+	public static Command quit() {
+		return new Command(OPT_QUIT, null);
+	}
 
-    public Command(byte operator, String region, Object key) {
-        this.operator = operator;
-        if (region == null)
-            region = CacheConstans.EHCACHE_DEFAULT_REGION;
-        this.region = region;
-        this.key = key;
-        this.src = SRC_ID;
-    }
+	public String json() {
+		return JSON.toJSONString(this);
+	}
 
-    public byte[] toBuffers() {
-        byte[] keyBuffers = null;
-        keyBuffers = SerializationUtils.serialize(key);
-        if(keyBuffers==null)return null;
+	public byte[] jsonBytes() {
+		return json().getBytes();
+	}
 
-        int r_len = region.getBytes().length;
-        int k_len = keyBuffers.length;
+	public static Command parse(String json) {
+		return JSON.parseObject(json, Command.class);
+	}
 
-        byte[] buffers = new byte[9 + r_len + k_len];
-        System.arraycopy(int2bytes(this.src), 0, buffers, 0, 4);
-        int idx = 4;
-        buffers[idx] = operator;
-        buffers[++idx] = (byte) (r_len >> 8);
-        buffers[++idx] = (byte) (r_len & 0xFF);
-        System.arraycopy(region.getBytes(), 0, buffers, ++idx, r_len);
-        idx += r_len;
-        buffers[idx++] = (byte) (k_len >> 8);
-        buffers[idx++] = (byte) (k_len & 0xFF);
-        System.arraycopy(keyBuffers, 0, buffers, idx, k_len);
-        return buffers;
-    }
+	public static Command parse(byte[] bytes) {
+		if(bytes == null || bytes.length == 0)
+			return null;
+		return parse(new String(bytes));
+	}
 
-    public static Command parse(byte[] buffers) {
-        Command cmd = null;
-        try {
-            int idx = 4;
-            byte opt = buffers[idx];
-            int r_len = buffers[++idx] << 8;
-            r_len += buffers[++idx];
-            if (r_len > 0) {
-                String region = new String(buffers, ++idx, r_len);
-                idx += r_len;
-                int k_len = buffers[idx++] << 8;
-                k_len += buffers[idx++];
-                if (k_len > 0) {
-                    byte[] keyBuffers = new byte[k_len];
-                    System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-                    Serializable key = SerializationUtils.deserialize(keyBuffers);
-                    cmd = new Command(opt, region, key);
-                    cmd.src = bytes2int(buffers);
-                }
-            }
-        } catch (Exception e) {
-            log.error("Unabled to parse received command.", e);
-        }
-        return cmd;
-    }
+	@JSONField(serialize = false)
+	public boolean isLocal() {
+		return this.src == SRC_ID;
+	}
+	
+	public int getOperator() {
+		return operator;
+	}
 
-    private static byte[] int2bytes(int i) {
-        byte[] b = new byte[4];
+	public void setOperator(int operator) {
+		this.operator = operator;
+	}
 
-        b[0] = (byte) (0xff & i);
-        b[1] = (byte) ((0xff00 & i) >> 8);
-        b[2] = (byte) ((0xff0000 & i) >> 16);
-        b[3] = (byte) ((0xff000000 & i) >> 24);
+	public String getRegion() {
+		return region;
+	}
 
-        return b;
-    }
+	public void setRegion(String region) {
+		this.region = region;
+	}
 
-    private static int bytes2int(byte[] bytes) {
-        int num = bytes[0] & 0xFF;
-        num |= ((bytes[1] << 8) & 0xFF00);
-        num |= ((bytes[2] << 16) & 0xFF0000);
-        num |= ((bytes[3] << 24) & 0xFF000000);
-        return num;
-    }
+	public Object[] getKeys() {
+		return keys;
+	}
 
-    public boolean isLocalCommand() {
-        return this.src == SRC_ID;
-    }
+	public void setKeys(String[] keys) {
+		this.keys = keys;
+	}
 
-    public byte getOperator() {
-        return operator;
-    }
+	public int getSrc() {
+		return src;
+	}
 
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public Object getKey() {
-        return key;
-    }
-
-    public void setKey(Serializable key) {
-        this.key = key;
-    }
+	public void setSrc(int src) {
+		this.src = src;
+	}
 
 }

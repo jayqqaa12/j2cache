@@ -49,13 +49,21 @@ public class RedisCache implements Cache {
      */
     @Override
     public List<Object> keys(String region) {
-
         List<Object> keys = new ArrayList<>();
         if (region == null) return keys;
-        Set<byte[]> bytes = reidsClient.get().hkeys(region.getBytes());
-        bytes.forEach((b) -> {
-            keys.add(SerializationUtils.deserialize(b));
-        });
+        try {
+            Set<byte[]> bytes = reidsClient.get().hkeys(region.getBytes());
+            bytes.forEach((b) -> {
+                try {
+                    keys.add(SerializationUtils.deserialize(b));
+                } catch (IOException e) {
+                    throw new CacheException(e);
+                }
+            });
+        } finally {
+            reidsClient.release();
+        }
+
 
         return keys;
     }
@@ -85,7 +93,10 @@ public class RedisCache implements Cache {
             log.error("Error occured when get data from redis2 of", e);
             if (e instanceof IOException || e instanceof NullPointerException)
                 remove(region, key);
+        } finally {
+            reidsClient.release();
         }
+
         return obj;
 
     }
@@ -101,7 +112,10 @@ public class RedisCache implements Cache {
             log.error("Error occured when get data from redis2 of", e);
             if (e instanceof IOException || e instanceof NullPointerException)
                 remove(key);
+        } finally {
+            reidsClient.release();
         }
+
         return obj;
     }
 
@@ -133,7 +147,10 @@ public class RedisCache implements Cache {
                 reidsClient.get().hset(region.getBytes(), getHashKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
+            } finally {
+                reidsClient.release();
             }
+
         }
     }
 
@@ -219,6 +236,8 @@ public class RedisCache implements Cache {
                 else reidsClient.get().set(getKeyBytes(key), SerializationUtils.serialize(value));
             } catch (Exception e) {
                 throw new CacheException(e);
+            } finally {
+                reidsClient.release();
             }
         }
     }
@@ -268,12 +287,17 @@ public class RedisCache implements Cache {
                     reidsClient.get().hdel(region.getBytes(), okeys);
                 } catch (Exception e) {
                     throw new CacheException(e);
+                } finally {
+                    reidsClient.release();
                 }
+
             } else {
                 try {
                     reidsClient.get().hdel(region.getBytes(), getHashKeyBytes(key));
                 } catch (Exception e) {
                     throw new CacheException(e);
+                } finally {
+                    reidsClient.release();
                 }
             }
 
@@ -289,15 +313,23 @@ public class RedisCache implements Cache {
     public void remove(Object key) throws CacheException {
         if (key == null)
             return;
-        if (key instanceof List) {
-            List keys = (List) key;
-            int size = keys.size();
-            for (int i = 0; i < size; i++) {
+
+        try {
+            if (key instanceof List) {
+                List keys = (List) key;
+                int size = keys.size();
+                for (int i = 0; i < size; i++) {
+                    reidsClient.get().del(getKeyBytes(key));
+                }
+
+            } else {
                 reidsClient.get().del(getKeyBytes(key));
             }
-        } else {
-            reidsClient.get().del(getKeyBytes(key));
+        } finally {
+            reidsClient.release();
         }
+
+
     }
 
     /**
@@ -305,7 +337,14 @@ public class RedisCache implements Cache {
      */
     @Override
     public void clear(String region) throws CacheException {
-        reidsClient.get().del(region.getBytes());
+
+        try {
+
+            reidsClient.get().del(region.getBytes());
+        } finally {
+            reidsClient.release();
+        }
+
     }
 
     /**
@@ -318,11 +357,15 @@ public class RedisCache implements Cache {
     public Object exprie(String region, Object key, int seconds) {
         if (key == null)
             return null;
-        else if (region != null && !region.isEmpty()) {
+        else if (region != null && !region.isEmpty())
             key = appendHashNameSpace(region, key);
+
+        try {
+            return reidsClient.get().expire(getKeyBytes(key), seconds);
+        } finally {
+            reidsClient.release();
         }
 
-        return reidsClient.get().expire(getKeyBytes(key), seconds);
     }
 
 

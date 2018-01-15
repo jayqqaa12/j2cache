@@ -2,41 +2,70 @@ package com.jayqqaa12.j2cache.redis.lock;
 
 import com.jayqqaa12.j2cache.redis.RedisClient;
 import com.jayqqaa12.j2cache.serializer.SerializationUtils;
+import com.jayqqaa12.j2cache.util.CacheException;
+
+import java.io.IOException;
 
 /**
  * Created by 12 on 2017/7/17.
  */
 public class JedisLock extends AbstractRedisLock {
 
-    private RedisClient jedis;
+    private RedisClient client;
 
     public JedisLock(RedisClient jedis) {
-        this.jedis = jedis;
+        this.client = jedis;
     }
 
     @Override
     protected Long setnx(String key, String val) {
-        return this.jedis.get().setnx(key.getBytes(), val.getBytes());
+        try {
+            return this.client.get().setnx(key.getBytes(), val.getBytes());
+        }   finally {
+            client.release();
+        }
     }
 
     @Override
     protected void expire(String key, int expire) {
-        this.jedis.get().expire(key.getBytes(), expire);
+        try {
+            this.client.get().expire(key.getBytes(), expire);
+        }   finally {
+            client.release();
+        }
     }
 
     @Override
     protected String get(String key) {
-        return SerializationUtils.deserialize(this.jedis.get().get(key.getBytes())).toString();
+        try {
+            return SerializationUtils.deserialize(this.client.get().get(key.getBytes())).toString();
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }finally {
+            client.release();
+        }
     }
 
     @Override
     protected String getSet(String key, String newVal) {
-        return SerializationUtils.deserialize(jedis.get().getSet(key.getBytes(), newVal.getBytes())).toString();
+        try {
+            return SerializationUtils.deserialize(client.get().getSet(key.getBytes(), newVal.getBytes())).toString();
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }finally {
+            client.release();
+        }
     }
 
     @Override
     protected void del(String key) {
-        jedis.get().del(key.getBytes());
+
+        try {
+            client.get().del(key.getBytes());
+        }   finally {
+            client.release();
+        }
+
     }
 
 }

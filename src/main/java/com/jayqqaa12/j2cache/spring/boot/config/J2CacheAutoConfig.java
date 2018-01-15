@@ -27,10 +27,7 @@ public class J2CacheAutoConfig {
     @ConditionalOnMissingBean
     public J2Cache j2Cache() {
 
-//        RedisConnConfig redisConnConfig = new RedisConnConfig();
-//        redisConnConfig.setPoolConfig(new JedisPoolConfig());
-//        BeanUtils.copyProperties(springBootRedisConfig, redisConnConfig);
-           
+
         //FIXME
 //        RedisCacheProvider.setRedisConnConfig(redisConnConfig);
 

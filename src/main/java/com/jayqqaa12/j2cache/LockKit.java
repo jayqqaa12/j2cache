@@ -11,10 +11,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class LockKit {
 
-
-    //FIXME
 //    public String isLimit(int limit, int timeout) {
-//        return JedisRateLimiter.acquireTokenFromBucket(cache, limit, timeout);
+//        return JedisRateLimiter.acquireTokenFromBucket(RedisCacheProvider.getClient(), limit, timeout);
 //    }
 
     

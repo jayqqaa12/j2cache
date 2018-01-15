@@ -12,8 +12,8 @@ import static com.jayqqaa12.j2cache.CacheConstans.LEVEL1;
 import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
 
 
-public  class CacheKit {
-    private final static Logger log = LoggerFactory.getLogger(CacheKit.class);
+public  abstract class CacheChannel {
+    private final static Logger log = LoggerFactory.getLogger(CacheChannel.class);
 
 
     /**
@@ -46,12 +46,12 @@ public  class CacheKit {
     public Object get(String region, Object key) {
         Object obj = null;
         if (key != null) {
-            obj = CacheManager.get(LEVEL1, region, key);
+            obj = CacheProviderHolder.get(LEVEL1, region, key);
             if (obj == null) {
                 log.debug("can't found level 1 of use level 2 of");
-                obj = CacheManager.get(LEVEL2, region, key);
+                obj = CacheProviderHolder.get(LEVEL2, region, key);
                 if (obj != null) {
-                    CacheManager.set(LEVEL1, region, key, obj, CacheConstans.DEFAULT_TIME);
+                    CacheProviderHolder.set(LEVEL1, region, key, obj, CacheConstans.DEFAULT_TIME);
                 }
             }
         }
@@ -63,7 +63,7 @@ public  class CacheKit {
 
         List<T> keys = new ArrayList<>();
         if (region != null) {
-            keys = CacheManager.keys(level, region);
+            keys = CacheProviderHolder.keys(level, region);
         }
         return keys;
 
@@ -81,7 +81,7 @@ public  class CacheKit {
     public Object get(int level, String region, Object key) {
         Object obj = null;
         if (key != null) {
-            obj = CacheManager.get(level, region, key);
+            obj = CacheProviderHolder.get(level, region, key);
         }
         return obj;
     }
@@ -111,8 +111,8 @@ public  class CacheKit {
                 remove(region, key);
             else {
                 if (notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
-                CacheManager.set(LEVEL1, region, key, value, seconds);
-                CacheManager.set(LEVEL2, region, key, value, seconds);
+                CacheProviderHolder.set(LEVEL1, region, key, value, seconds);
+                CacheProviderHolder.set(LEVEL2, region, key, value, seconds);
             }
         }
     }
@@ -128,14 +128,14 @@ public  class CacheKit {
 
     public void batchSet(int level, String region, Map<?, ?> data, int seconds) {
         if (data != null && !data.isEmpty()) {
-            CacheManager.batchSet(level, region, data, seconds);
+            CacheProviderHolder.batchSet(level, region, data, seconds);
         }
     }
 
 
     public <T> List<T> batchGet(int level, String region) {
 
-        return CacheManager.batchGet(level, region);
+        return CacheProviderHolder.batchGet(level, region);
     }
 
 
@@ -195,7 +195,7 @@ public  class CacheKit {
                 remove(region, key);
             else {
                 if (notify) sendEvictCmd(region, key);// 清除原有的一级缓存的内容
-                CacheManager.set(level, region, key, value, seconds);
+                CacheProviderHolder.set(level, region, key, value, seconds);
             }
         }
     }
@@ -231,8 +231,8 @@ public  class CacheKit {
      */
     public void remove(Object key) {
         sendEvictCmd(CacheConstans.NUllRegion, key);
-        CacheManager.remove(LEVEL1, CacheConstans.NUllRegion, key);
-        CacheManager.remove(LEVEL2, CacheConstans.NUllRegion, key);
+        CacheProviderHolder.remove(LEVEL1, CacheConstans.NUllRegion, key);
+        CacheProviderHolder.remove(LEVEL2, CacheConstans.NUllRegion, key);
     }
 
     /**
@@ -245,16 +245,16 @@ public  class CacheKit {
         for (Object key : keys) {
             sendEvictCmd(region, key);
         }
-        CacheManager.batchRemove(LEVEL1, region, keys);
-        CacheManager.batchRemove(LEVEL2, region, keys);
+        CacheProviderHolder.batchRemove(LEVEL1, region, keys);
+        CacheProviderHolder.batchRemove(LEVEL2, region, keys);
     }
 
     public void remove(List<Object> keys) {
         for (Object key : keys) {
             sendEvictCmd(CacheConstans.NUllRegion, key);
         }
-        CacheManager.batchRemove(LEVEL1, CacheConstans.NUllRegion, keys);
-        CacheManager.batchRemove(LEVEL2, CacheConstans.NUllRegion, keys);
+        CacheProviderHolder.batchRemove(LEVEL1, CacheConstans.NUllRegion, keys);
+        CacheProviderHolder.batchRemove(LEVEL2, CacheConstans.NUllRegion, keys);
     }
 
     /**
@@ -264,8 +264,8 @@ public  class CacheKit {
      * @param key    : Cache key
      */
     public void remove(String region, Object key) {
-        CacheManager.remove(LEVEL1, region, key); // 删除一级缓存
-        CacheManager.remove(LEVEL2, region, key); // 删除二级缓存
+        CacheProviderHolder.remove(LEVEL1, region, key); // 删除一级缓存
+        CacheProviderHolder.remove(LEVEL2, region, key); // 删除二级缓存
         sendEvictCmd(region, key); // 发送广播
     }
 
@@ -276,22 +276,11 @@ public  class CacheKit {
      * @param region : Cache region name
      */
     public void clear(String region) throws CacheException {
-        CacheManager.clear(LEVEL1, region);
-        CacheManager.clear(LEVEL2, region);
+        CacheProviderHolder.clear(LEVEL1, region);
+        CacheProviderHolder.clear(LEVEL2, region);
         sendEvictCmd(region, null);
     }
 
-    /**
-     * 关闭到通道的连接
-     */
-    public void close() {
-
-
-        CacheManager.shutdown(LEVEL1);
-        CacheManager.shutdown(LEVEL2);
-
-        log.info("j2cache closed ");
-    }
 
     /**
      * update exprie time
@@ -310,8 +299,8 @@ public  class CacheKit {
      * @param seconds
      */
     public Object exprie(String region, Object key, int seconds) {
-        CacheManager.exprie(LEVEL1, region, key, seconds);
-        CacheManager.exprie(LEVEL2, region, key, seconds);
+        CacheProviderHolder.exprie(LEVEL1, region, key, seconds);
+        CacheProviderHolder.exprie(LEVEL2, region, key, seconds);
         return get(region, key);
     }
 
@@ -322,15 +311,14 @@ public  class CacheKit {
      * @param region : Cache region name
      * @param key    : of key
      */
-    public void sendEvictCmd(String region, Object key) {
+    public abstract void sendEvictCmd(String region, Object key)  ;
 
-        //FIXME 
-//        Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
-//        try (Jedis jedis = RedisConnConfig.getPool().getResource()) {
-//            jedis.publish(SafeEncoder.encode(CacheConstans.REDIS_CHANNEL), cmd.toBuffers());
-//        } catch (Exception e) {
-//            log.error("Unable to delete of,region=" + region + ",key=" + key, e);
-//        }
+    /**
+     * 关闭到通道的连接
+     */
+    public abstract void close() ;
 
-    }
+
+
+
 }

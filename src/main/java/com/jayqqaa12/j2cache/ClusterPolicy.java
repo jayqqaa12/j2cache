@@ -1,9 +1,8 @@
 package com.jayqqaa12.j2cache;
 
 import java.io.IOException;
-import java.io.Serializable;
 
- 
+
 public interface ClusterPolicy {
 
     /**
@@ -13,33 +12,32 @@ public interface ClusterPolicy {
 
     /**
      * 发送清除缓存的命令
+     *
      * @param region 区域名称
-     * @param key   缓存键值
+     * @param keys   缓存键值
      */
-    void sendEvictCmd(String region, Serializable key);
+    void sendEvictCmd(String region, Object... keys);
 
     /**
      * 发送清除整个缓存区域的命令
+     *
      * @param region 区域名称
      */
     void sendClearCmd(String region);
 
     /**
-     * 断开集群连接        
+     * 断开集群连接
      */
     void disconnect();
 
     /**
      * 删除本地某个缓存条目
+     *
      * @param region 区域名称
-     * @param key   缓存键值
      * @throws IOException io exception
      */
-    default void evict(String region, Serializable key) throws IOException {
-//        if (key instanceof List)
-//            CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, (List) key);
-//        else
-//            CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, key);
+    default void evict(String region, Object keys) throws IOException {
+        CacheProviderHolder.remove(CacheConstans.LEVEL1, region, keys);
     }
 
     /**
@@ -48,7 +46,7 @@ public interface ClusterPolicy {
      * @throws IOException io exception
      */
     default void clear(String region) throws IOException {
-//        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
+        CacheProviderHolder.clear(CacheConstans.LEVEL1, region);
     }
 
 

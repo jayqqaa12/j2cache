@@ -1,12 +1,26 @@
+///**
+// * Copyright (c) 2015-2017, Winter Lau (javayou@gmail.com).
+// * <p>
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// * <p>
+// * http://www.apache.org/licenses/LICENSE-2.0
+// * <p>
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
 //package net.oschina.j2cache;
 //
-//import com.jayqqaa12.j2cache.util.CacheException;
+//import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //
 //import java.io.IOException;
 //import java.io.InputStream;
-//import java.io.Serializable;
 //import java.util.Properties;
 //import java.util.concurrent.ExecutorService;
 //import java.util.concurrent.Executors;
@@ -21,7 +35,7 @@
 //
 //	private final static String CONFIG_FILE = "/j2cache.properties";
 //
-//	private static CacheChannel channel;
+//	private final static CacheChannel channel;
 //	private static ClusterPolicy policy; //不同的广播策略
 //
 //	private static String serializer;
@@ -40,8 +54,8 @@
 //				}
 //
 //				@Override
-//				public void sendEvictCmd(String region, Serializable key) {
-//					threadPool.execute(()->policy.sendEvictCmd(region, key));
+//				public void sendEvictCmd(String region, String...keys) {
+//					threadPool.execute(()->policy.sendEvictCmd(region, keys));
 //				}
 //
 //				@Override
@@ -83,25 +97,27 @@
 //			props.load(configStream);
 //			serializer = props.getProperty("j2cache.serialization");
 //			//初始化两级的缓存管理
-////			CacheProviderHolder.initCacheProvider(props, (region, key)->{
-////				//当一级缓存中的对象失效时，自动清除二级缓存中的数据
-////				try {
-////					CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key);
-////					log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
-////				} catch (IOException e){
-////					log.error(String.format("Failed to evict level 2 cache object [%s:%s]",region,key), e);
-////				}
-////				if(policy != null)
-////					policy.sendEvictCmd(region, key);
-////			});
+//			CacheProviderHolder.initCacheProvider(props, (region, key)->{
+//				//当一级缓存中的对象失效时，自动清除二级缓存中的数据
+//				try {
+//					CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key);
+//					log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
+//				} catch (IOException e){
+//					log.error(String.format("Failed to evict level 2 cache object [%s:%s]",region,key), e);
+//				}
+//				if(policy != null)
+//					policy.sendEvictCmd(region, key);
+//			});
 //
 //			String cache_broadcast = props.getProperty("j2cache.broadcast");
 //			if ("redis".equalsIgnoreCase(cache_broadcast)) {
 //				String channel = props.getProperty("redis.channel");
-//				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient());//.getInstance();
+////				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient(), props);//.getInstance();
+////				RedisPubSubClusterPolicy policy = new RedisPubSubClusterPolicy(name, redis);
+////				policy.connect(props);
 //			}
-//			else
-//				throw new CacheException("Cache Channel not defined. name = " + cache_broadcast);
+//
+//			log.info("Using cluster policy : " + policy.getClass().getName());
 //		}
 //	}
 //
@@ -111,9 +127,9 @@
 //	 */
 //	private static InputStream getConfigStream() {
 //		log.info("Load J2Cache Config File : [{}].", CONFIG_FILE);
-//		InputStream configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
+//		InputStream configStream = J2Cache.class.getResourceAsStream(CONFIG_FILE);
 //		if(configStream == null)
-//			configStream = J2Cache.class.getResourceAsStream(CONFIG_FILE);
+//			configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
 //		if(configStream == null)
 //			throw new CacheException("Cannot find " + CONFIG_FILE + " !!!");
 //		return configStream;

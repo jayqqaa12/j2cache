@@ -36,22 +36,13 @@ public class SerializationUtils {
         log.info("Using SerializerClass -> [" + serializer.name() + ":" + serializer.getClass().getName() + ']');
     }
 
-    public static byte[] serialize(Object obj) {
-        try {
+    public static byte[] serialize(Object obj) throws IOException {
             return serializer.serialize(obj);
-        } catch (IOException e) {
-            log.info("serializer fail {}",e);
-            return null;
-        }
+
     }
 
-    public static Serializable deserialize(byte[] bytes)  {
-        try {
+    public static Serializable deserialize(byte[] bytes) throws IOException {
             return (Serializable) serializer.deserialize(bytes);
-        } catch (IOException e) {
-            log.info("serializer fail {}",e);
-            return null;
-        }
     }
 
 }
