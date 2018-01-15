@@ -15,20 +15,20 @@ public class TestLock {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         //可重入锁
-        for (int i = 0; i < 500; i++) {
-            executorService.execute(() -> {
-                boolean succ = J2Cache.lock().spinLock("sb", 1);
-                System.out.println(System.currentTimeMillis() + " :>>" + Thread.currentThread().getId() + ":" + succ);
-            });
-        }
-
-        // 正常的锁
-//        for (int i = 0; i < 10; i++) {
+//        for (int i = 0; i < 500; i++) {
 //            executorService.execute(() -> {
 //                boolean succ = J2Cache.lock().spinLock("sb", 1);
 //                System.out.println(System.currentTimeMillis() + " :>>" + Thread.currentThread().getId() + ":" + succ);
 //            });
 //        }
+
+        // 正常的锁
+        for (int i = 0; i < 10; i++) {
+            executorService.execute(() -> {
+                boolean succ = J2Cache.lock().spinLock("sb", 1);
+                System.out.println(System.currentTimeMillis() + " :>>" + Thread.currentThread().getId() + ":" + succ);
+            });
+        }
 
 
         TimeUnit.MINUTES.sleep(111);

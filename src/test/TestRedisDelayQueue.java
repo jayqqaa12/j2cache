@@ -35,16 +35,15 @@ TestRedisDelayQueue {
 
 	@Test
 	public void testCreate() throws InterruptedException {
-//		Message message = new Message();
-//		for (int i = 0; i < 10; i++) {
-//			message.setId(i + "");
-//			message.setPayload("test");
-//			message.setPriority(0);
-//			message.setTimeout(3000+i*1000);
-//			message.setCreateTime(System.currentTimeMillis());
-//
-//			queue.push(message);
-//		}
+		Message message = new Message();
+		for (int i = 0; i < 10; i++) {
+			message.setId(i + "");
+			message.setPriority(0);
+			message.setTimeout(3000+i*1000);
+			message.setCreateTime(System.currentTimeMillis());
+
+			queue.push(message);
+		}
 		queue.listen();
 
 		TimeUnit.SECONDS.sleep(111);

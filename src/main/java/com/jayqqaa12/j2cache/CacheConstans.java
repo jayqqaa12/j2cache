@@ -18,7 +18,7 @@ public class CacheConstans {
     //默认存储时间
     public final static int DEFAULT_TIME = 0;
     //redis channel消息订阅默认频道
-    public final static String REDIS_CHANNEL = "__DEFAULT__";
+    public final static String REDIS_CHANNEL = "_DEFAULT_";
     //空的RGION
     public static String NUllRegion = null;
 

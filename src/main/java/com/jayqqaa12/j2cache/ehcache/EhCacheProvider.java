@@ -47,6 +47,7 @@ public class EhCacheProvider implements CacheProvider {
             throw new CacheException("can't build more of greater than 100  check you code can't use diff region ");
         }
 
+
         EhCache ehcache = caches.get(name);
 
         if (ehcache == null) {
@@ -75,11 +76,13 @@ public class EhCacheProvider implements CacheProvider {
 
 
     public void start(Properties properties) throws CacheException {
+        System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
         if (manager != null) {
             log.warn("Attempt to restart an already started EhCacheProvider.");
             return;
         }
         manager = CacheManager.getInstance();
+
         this.caches = new ConcurrentHashMap<>();
     }
 

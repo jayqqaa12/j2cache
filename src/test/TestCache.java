@@ -63,6 +63,7 @@ public class TestCache {
         Assert.assertEquals(a,123);
 
 
+        J2Cache.close();
 
     }
 }
