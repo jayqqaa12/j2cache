@@ -1,4 +1,4 @@
-import com.jayqqaa12.j2cache.core.J2Cache;
+import com.jayqqaa12.j2cache.J2Cache;
 import org.junit.Assert;
 
 public class TestCache {

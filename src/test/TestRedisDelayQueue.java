@@ -1,6 +1,6 @@
-import com.jayqqaa12.j2cache.core.J2Cache;
-import com.jayqqaa12.j2cache.redis.queue.Message;
+import com.jayqqaa12.j2cache.J2Cache;
 import com.jayqqaa12.j2cache.redis.queue.DelayQueueProcessListener;
+import com.jayqqaa12.j2cache.redis.queue.Message;
 import com.jayqqaa12.j2cache.redis.queue.RedisDelayQueue;
 import org.junit.Before;
 import org.junit.Test;

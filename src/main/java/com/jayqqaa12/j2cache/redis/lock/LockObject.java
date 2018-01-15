@@ -1,7 +1,7 @@
 package com.jayqqaa12.j2cache.redis.lock;
 
 import com.alibaba.fastjson.JSON;
-import com.jayqqaa12.j2cache.util.UniqueUtil;
+import com.jayqqaa12.j2cache.util.UniqueKit;
 
 /**
  * Created by 12 on 2017/7/17.
@@ -21,7 +21,7 @@ public class LockObject {
 
 
     public static String genKey() {
-        return UniqueUtil.MAC_ADDR +":"+ UniqueUtil.JVM_PID +":"+ Thread.currentThread().getId();
+        return UniqueKit.MAC_ADDR +":"+ UniqueKit.JVM_PID +":"+ Thread.currentThread().getId();
     }
 
     public String toJson() {

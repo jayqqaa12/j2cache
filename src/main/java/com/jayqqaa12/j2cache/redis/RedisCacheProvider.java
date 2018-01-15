@@ -57,7 +57,7 @@ public class RedisCacheProvider implements CacheProvider {
                     .database(database)
                     .poolConfig(poolConfig).newClient();
 
-            log.info(String.format("Redis client starts with mode(%s), db(%d), storage(%s), namespace(%s)", mode, database, namespace));
+            log.info(String.format("Redis client starts with mode(%s), db(%d), namespace(%s)", mode, database, namespace));
 
             cache = new RedisCache(this.namespace, redisClient);
         } catch (IllegalAccessException | InvocationTargetException e) {

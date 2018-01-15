@@ -2,15 +2,15 @@ package com.jayqqaa12.j2cache;
 
 import com.jayqqaa12.j2cache.redis.RedisPubSubClusterPolicy;
 import com.jayqqaa12.j2cache.util.CacheException;
+import com.jayqqaa12.j2cache.util.ConfigKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import static com.jayqqaa12.j2cache.CacheConstans.*;
+import static com.jayqqaa12.j2cache.CacheConstans.LEVEL1;
+import static com.jayqqaa12.j2cache.CacheConstans.LEVEL2;
 
 
 /**
@@ -35,7 +35,7 @@ public class J2Cache {
     }
 
     private static void init() {
-        CacheProviderHolder.init(initFromConfig());
+        CacheProviderHolder.init(ConfigKit.initFromConfig());
         RedisPubSubClusterPolicy policy = new RedisPubSubClusterPolicy(CacheConstans.REDIS_CHANNEL, CacheProviderHolder.getRedisClient());
         policy.connect();
         cache = new CacheChannel() {
@@ -55,30 +55,6 @@ public class J2Cache {
 
     }
 
-    private static Properties initFromConfig() {
-        try (InputStream configStream = getConfigStream()) {
-            Properties props = new Properties();
-            props.load(configStream);
-            return props;
-        } catch (Exception e) {
-            throw new CacheException("Cannot find " + CONFIG_FILE + " !!!");
-        }
-    }
-
-    /**
-     * get j2cache properties stream
-     *
-     * @return
-     */
-    private static InputStream getConfigStream() {
-        LOG.info("Load J2Cache Config File : [{}].", CONFIG_FILE);
-        InputStream configStream = J2Cache.class.getResourceAsStream(CONFIG_FILE);
-        if (configStream == null)
-            configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
-        if (configStream == null)
-            throw new CacheException("Cannot find " + CONFIG_FILE + " !!!");
-        return configStream;
-    }
 
 
     public static CacheChannel cache() {

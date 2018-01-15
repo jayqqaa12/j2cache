@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 /**
  * Created by 12 on 2017/7/17.
  */
-public class UniqueUtil {
+public class UniqueKit {
 
     public static final int JVM_PID = getJvmPid();
 

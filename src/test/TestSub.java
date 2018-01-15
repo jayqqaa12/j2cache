@@ -1,5 +1,4 @@
-import com.jayqqaa12.j2cache.core.J2Cache;
-
+import com.jayqqaa12.j2cache.J2Cache;
 
 public class TestSub {
     public static void main(String[] args) throws Exception {
