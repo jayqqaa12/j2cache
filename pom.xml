@@ -36,15 +36,7 @@
     </scm>
 
 
-    <!-- 设置一下 私服 -->
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://dev.esongbai.xyz/nexus/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
-
+  
 
 
 
@@ -279,6 +271,25 @@
         </profile>
     </profiles>
 
+
+    <!-- 设置一下 私服 -->
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://dev.esongbai.xyz/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
+
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>Team Nexus Repository</name>
+            <url>http://dev.esongbai.xyz/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    
     <pluginRepositories>
         <pluginRepository>
             <id>nexus</id>
